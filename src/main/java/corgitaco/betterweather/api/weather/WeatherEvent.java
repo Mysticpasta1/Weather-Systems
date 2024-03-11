@@ -18,6 +18,7 @@ import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -36,7 +37,7 @@ public abstract class WeatherEvent implements WeatherEventSettings {
 
     public static final boolean MODIFY_TEMPERATURE = false;
 
-    public static final Codec<WeatherEvent> CODEC = BetterWeatherRegistry.WEATHER_EVENT.byNameCodec().dispatchStable(WeatherEvent::codec, Function.identity());
+    public static final Codec<WeatherEvent> CODEC =  ExtraCodecs.lazyInitializedCodec(() -> BetterWeatherRegistry.WEATHER_EVENT.get().getCodec()).dispatchStable(WeatherEvent::codec, Function.identity());
 
     public static final Map<String, String> VALUE_COMMENTS = Util.make(new HashMap<>(WeatherEventClientSettings.VALUE_COMMENTS), (map) -> {
         map.put("defaultChance", "What is the default chance for this weather event to occur? This value is only used when Seasons are NOT present in the given dimension.");
@@ -111,7 +112,7 @@ public abstract class WeatherEvent implements WeatherEventSettings {
     }
 
     public final Component successTranslationTextComponent(String key) {
-        return Component.translatable("commands.bw.setweather.success", new TranslatableContents("bw.weather." + key));
+        return Component.translatable("commands.bw.setweather.success", Component.translatable("bw.weather." + key));
     }
 
     public String getName() {

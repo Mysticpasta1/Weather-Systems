@@ -53,7 +53,7 @@ public class SetWeatherCommand {
 
         if (weatherEventContext != null) {
             if (weatherEventContext.getWeatherEvents().containsKey(weatherKey)) {
-                source.sendSuccess((Component) weatherEventContext.weatherForcer(weatherKey, length, world).successTranslationTextComponent(weatherKey), true);
+                source.sendSuccess(() -> weatherEventContext.weatherForcer(weatherKey, length, world).successTranslationTextComponent(weatherKey), true);
             } else {
                 source.sendFailure(Component.translatable("commands.bw.setweather.fail.no_weather_event", weatherKey));
                 return 0;

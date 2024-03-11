@@ -1,6 +1,5 @@
 package corgitaco.betterweather.util.client;
 
-import com.mojang.math.Vector3d;
 import corgitaco.betterweather.BetterWeather;
 import corgitaco.betterweather.api.client.ColorSettings;
 import corgitaco.betterweather.helpers.BetterWeatherWorldData;
@@ -10,6 +9,8 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraftforge.registries.ForgeRegistries;
+import org.joml.Vector3d;
 
 import java.util.Optional;
 
@@ -45,7 +46,7 @@ public final class ColorUtil {
 
         BWWeatherEventContext weatherEventContext = ((BetterWeatherWorldData) world).getWeatherEventContext();
 
-        Optional<ResourceKey<Biome>> optionalKey = world.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY).getResourceKey(biome);
+        Optional<ResourceKey<Biome>> optionalKey = world.registryAccess().registryOrThrow(ForgeRegistries.BIOMES.getRegistryKey()).getResourceKey(biome);
         if (optionalKey.isEmpty()) {
             return previous;
         }

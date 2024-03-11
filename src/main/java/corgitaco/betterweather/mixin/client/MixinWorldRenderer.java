@@ -80,7 +80,7 @@ public abstract class MixinWorldRenderer {
             float g = (float) (targetCloudHexColor >> 8 & 255) / 255.0F;
             float b = (float) (targetCloudHexColor & 255) / 255.0F;
 
-            float blendStrengthAtLocation = weatherEventContext.getCurrentClientEvent().cloudBlendStrength(this.level, new BlockPos(cloudsX, cloudsY, cloudsZ), weatherEventContext.getCurrentEvent()::isValidBiome);
+            float blendStrengthAtLocation = weatherEventContext.getCurrentClientEvent().cloudBlendStrength(this.level, new BlockPos((int) cloudsX, (int) cloudsY, (int) cloudsZ), weatherEventContext.getCurrentEvent()::isValidBiome);
             float rainStrength = this.level.getRainLevel(Minecraft.getInstance().getFrameTime());
 
             float blend = (float) Math.min(cloudColorBlendStrength, rainStrength * blendStrengthAtLocation);

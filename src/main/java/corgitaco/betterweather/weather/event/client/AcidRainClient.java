@@ -60,7 +60,7 @@ public class AcidRainClient extends RainClient {
                 int l = random.nextInt(21) - 10;
                 BlockPos blockpos2 = iworldreader.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, blockpos.offset(k, 0, l)).below();
                 Holder<Biome> biome = iworldreader.getBiome(blockpos2);
-                if (blockpos2.getY() > 0 && blockpos2.getY() <= blockpos.getY() + 10 && blockpos2.getY() >= blockpos.getY() - 10 && biome.value().getPrecipitation() == Biome.Precipitation.RAIN && biome.value().getBaseTemperature() >= 0.15F) {
+                if (blockpos2.getY() > 0 && blockpos2.getY() <= blockpos.getY() + 10 && blockpos2.getY() >= blockpos.getY() - 10 && biome.value().getPrecipitationAt(blockpos) == Biome.Precipitation.RAIN && biome.value().getBaseTemperature() >= 0.15F) {
                     blockpos1 = blockpos2;
                     if (mc.options.particles().get() == ParticleStatus.MINIMAL) {
                         break;

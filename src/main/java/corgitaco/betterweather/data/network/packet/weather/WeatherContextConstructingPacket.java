@@ -6,8 +6,10 @@ import corgitaco.betterweather.weather.BWWeatherEventContext;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.Registry;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.function.Supplier;
 
@@ -21,11 +23,11 @@ public class WeatherContextConstructingPacket {
     }
 
     public static void encode(WeatherContextConstructingPacket packet, FriendlyByteBuf buf) {
-        buf.writeWithCodec(BWWeatherEventContext.PACKET_CODEC, packet.bwWeatherEventContext);
+        buf.writeWithCodec(NbtOps.INSTANCE, BWWeatherEventContext.PACKET_CODEC, packet.bwWeatherEventContext);
     }
 
     public static WeatherContextConstructingPacket decode(FriendlyByteBuf buf) {
-        return new WeatherContextConstructingPacket(buf.readWithCodec(BWWeatherEventContext.PACKET_CODEC));
+        return new WeatherContextConstructingPacket(buf.readWithCodec(NbtOps.INSTANCE, BWWeatherEventContext.PACKET_CODEC));
     }
 
     public static void handle(WeatherContextConstructingPacket message, Supplier<NetworkEvent.Context> ctx) {
@@ -38,7 +40,7 @@ public class WeatherContextConstructingPacket {
                     BWWeatherEventContext weatherEventContext = ((BetterWeatherWorldData) world).getWeatherEventContext();
                     if (weatherEventContext == null) {
                         weatherEventContext = ((BetterWeatherWorldData) world).setWeatherEventContext(new BWWeatherEventContext(message.bwWeatherEventContext.getCurrentWeatherEventKey(),
-                                message.bwWeatherEventContext.isWeatherForced(), world.dimension().location(), world.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY), message.bwWeatherEventContext.getWeatherEvents()));
+                                message.bwWeatherEventContext.isWeatherForced(), world.dimension().location(), world.registryAccess().registryOrThrow(ForgeRegistries.BIOMES.getRegistryKey()), message.bwWeatherEventContext.getWeatherEvents()));
                         weatherEventContext.setCurrentEvent(message.bwWeatherEventContext.getCurrentEvent());
                         new ClientBiomeUpdate(world.registryAccess(), message.bwWeatherEventContext).updateBiomeData();
                     } else {

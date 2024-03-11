@@ -16,7 +16,7 @@ public abstract class MixinChunkHolder {
 
     @Inject(method = "broadcast", at = @At("HEAD"))
     private void runChunkUpdates(Entity p_140334_, Packet<?> p_140335_, CallbackInfo ci) {
-        ServerLevel world = (ServerLevel) p_140334_.getLevel();
+        ServerLevel world = (ServerLevel) p_140334_.level();
 
         BWWeatherEventContext weatherEventContext = ((BetterWeatherWorldData) world).getWeatherEventContext();
     }

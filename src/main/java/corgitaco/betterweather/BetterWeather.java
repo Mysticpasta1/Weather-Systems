@@ -1,6 +1,9 @@
 package corgitaco.betterweather;
 
+import com.mojang.serialization.Codec;
 import corgitaco.betterweather.api.BetterWeatherRegistry;
+import corgitaco.betterweather.api.weather.WeatherEvent;
+import corgitaco.betterweather.api.weather.WeatherEventClientSettings;
 import corgitaco.betterweather.config.BetterWeatherClientConfig;
 import corgitaco.betterweather.config.BetterWeatherConfig;
 import corgitaco.betterweather.data.network.NetworkHandler;
@@ -17,6 +20,9 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLPaths;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -38,21 +44,27 @@ public class BetterWeather {
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
         bus.addListener(this::commonSetup);
         bus.addListener(this::lateSetup);
+        BetterWeatherRegistry.init(bus);
+        WEATHER_CLIENT_EVENT.register(bus);
+        WEATHER_EVENT.register(bus);
     }
 
+    public static final DeferredRegister<Codec<? extends WeatherEvent>> WEATHER_EVENT = DeferredRegister.create(BetterWeatherRegistry.WEATHER_EVENT_KEY, MOD_ID);
+    public static final DeferredRegister<Codec<? extends WeatherEventClientSettings>> WEATHER_CLIENT_EVENT = DeferredRegister.create(BetterWeatherRegistry.CLIENT_WEATHER_EVENT_KEY, MOD_ID);
+
+    public static final RegistryObject<Codec<? extends  WeatherEventClientSettings>> ACID_RAIN_CLIENT = WEATHER_CLIENT_EVENT.register("acid_rain", () -> AcidRainClientSettings.CODEC);
+    public static final RegistryObject<Codec<? extends  WeatherEventClientSettings>> BLIZZARD_CLIENT =  WEATHER_CLIENT_EVENT.register("blizzard", () -> BlizzardClientSettings.CODEC);
+    public static final RegistryObject<Codec<? extends  WeatherEventClientSettings>> CLOUDY_CLIENT = WEATHER_CLIENT_EVENT.register("cloudy", () -> CloudyClientSettings.CODEC);
+    public static final RegistryObject<Codec<? extends  WeatherEventClientSettings>> NONE_CLIENT = WEATHER_CLIENT_EVENT.register("none", () -> NoneClientSettings.CODEC);
+    public static final RegistryObject<Codec<? extends  WeatherEventClientSettings>> RAIN_CLIENT = WEATHER_CLIENT_EVENT.register("rain", () -> RainClientSettings.CODEC);
+
+    public static final RegistryObject<Codec<? extends  WeatherEvent>> ACID_RAIN = WEATHER_EVENT.register("acid_rain",  () -> AcidRain.CODEC);
+    public static final RegistryObject<Codec<? extends  WeatherEvent>> BLIZZARD = WEATHER_EVENT.register("blizzard",  () -> Blizzard.CODEC);
+    public static final RegistryObject<Codec<? extends  WeatherEvent>> CLOUDY = WEATHER_EVENT.register("cloudy",  () -> Cloudy.CODEC);
+    public static final RegistryObject<Codec<? extends  WeatherEvent>> NONE = WEATHER_EVENT.register("none",  () -> None.CODEC);
+    public static final RegistryObject<Codec<? extends  WeatherEvent>> RAIN = WEATHER_EVENT.register("rain",  () -> Rain.CODEC);
     private void commonSetup(FMLCommonSetupEvent event) {
         BetterWeatherConfig.serialize();
-        Registry.register(BetterWeatherRegistry.CLIENT_WEATHER_EVENT_SETTINGS, new ResourceLocation(MOD_ID, "acid_rain"), AcidRainClientSettings.CODEC);
-        Registry.register(BetterWeatherRegistry.CLIENT_WEATHER_EVENT_SETTINGS, new ResourceLocation(MOD_ID, "blizzard"), BlizzardClientSettings.CODEC);
-        Registry.register(BetterWeatherRegistry.CLIENT_WEATHER_EVENT_SETTINGS, new ResourceLocation(MOD_ID, "cloudy"), CloudyClientSettings.CODEC);
-        Registry.register(BetterWeatherRegistry.CLIENT_WEATHER_EVENT_SETTINGS, new ResourceLocation(MOD_ID, "none"), NoneClientSettings.CODEC);
-        Registry.register(BetterWeatherRegistry.CLIENT_WEATHER_EVENT_SETTINGS, new ResourceLocation(MOD_ID, "rain"), RainClientSettings.CODEC);
-
-        Registry.register(BetterWeatherRegistry.WEATHER_EVENT, new ResourceLocation(MOD_ID, "acid_rain"), AcidRain.CODEC);
-        Registry.register(BetterWeatherRegistry.WEATHER_EVENT, new ResourceLocation(MOD_ID, "blizzard"), Blizzard.CODEC);
-        Registry.register(BetterWeatherRegistry.WEATHER_EVENT, new ResourceLocation(MOD_ID, "cloudy"), Cloudy.CODEC);
-        Registry.register(BetterWeatherRegistry.WEATHER_EVENT, new ResourceLocation(MOD_ID, "none"), None.CODEC);
-        Registry.register(BetterWeatherRegistry.WEATHER_EVENT, new ResourceLocation(MOD_ID, "rain"), Rain.CODEC);
 
         BetterWeatherRegistry.DEFAULT_EVENTS.put(new ResourceLocation(BetterWeather.MOD_ID, "none"), None.DEFAULT);
         BetterWeatherRegistry.DEFAULT_EVENTS.put(new ResourceLocation(BetterWeather.MOD_ID, "acid_rain"), AcidRain.DEFAULT);

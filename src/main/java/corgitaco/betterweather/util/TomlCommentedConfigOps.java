@@ -82,14 +82,14 @@ public class TomlCommentedConfigOps implements DynamicOps<Object> {
     public DataResult<Number> getNumberValue(Object input) {
         return input instanceof Number
                 ? DataResult.success((Number) input)
-                : DataResult.error("Not a number: " + input);
+                : DataResult.error(() -> "Not a number: " + input);
     }
 
     @Override
     public DataResult<Boolean> getBooleanValue(Object input) {
         return input instanceof Boolean
                 ? DataResult.success((Boolean) input)
-                : DataResult.error("Not a boolean: " + input);
+                : DataResult.error(() -> "Not a boolean: " + input);
     }
 
     @Override
@@ -105,7 +105,7 @@ public class TomlCommentedConfigOps implements DynamicOps<Object> {
     @Override
     public DataResult<String> getStringValue(Object input) {
         if (input instanceof CommentedConfig || input instanceof Collection) {
-            return DataResult.error("Not a string: " + input);
+            return DataResult.error(() -> "Not a string: " + input);
         } else {
             return DataResult.success(String.valueOf(input));
         }
@@ -124,7 +124,7 @@ public class TomlCommentedConfigOps implements DynamicOps<Object> {
     @Override
     public DataResult<Object> mergeToList(Object list, Object value) {
         if (!(list instanceof Collection) && list != this.empty()) {
-            return DataResult.error("mergeToList called with not a list: " + list, list);
+            return DataResult.error(() -> "mergeToList called with not a list: " + list, list);
         }
         final Collection<Object> result = new ArrayList<>();
         if (list != this.empty()) {
@@ -138,12 +138,12 @@ public class TomlCommentedConfigOps implements DynamicOps<Object> {
     @Override
     public DataResult<Object> mergeToMap(Object map, Object key, Object value) {
         if (!(map instanceof CommentedConfig) && map != this.empty()) {
-            return DataResult.error("mergeToMap called with not a map: " + map, map);
+            return DataResult.error(() -> "mergeToMap called with not a map: " + map, map);
         }
         DataResult<String> stringResult = this.getStringValue(key);
         Optional<DataResult.PartialResult<String>> badResult = stringResult.error();
         if (badResult.isPresent()) {
-            return DataResult.error("key is not a string: " + key, map);
+            return DataResult.error(() -> "key is not a string: " + key, map);
         }
 
         return stringResult.flatMap(s -> {
@@ -183,7 +183,7 @@ public class TomlCommentedConfigOps implements DynamicOps<Object> {
     @Override
     public DataResult<Stream<Pair<Object, Object>>> getMapValues(Object input) {
         if (!(input instanceof CommentedConfig)) {
-            return DataResult.error("Not a Config: " + input);
+            return DataResult.error(() -> "Not a Config: " + input);
         }
         final CommentedConfig config = (CommentedConfig) input;
         return DataResult.success(config.entrySet().stream().sorted(Comparator.comparing(Objects::toString)).map(entry -> Pair.of(entry.getKey(), entry.getValue())));
@@ -212,7 +212,7 @@ public class TomlCommentedConfigOps implements DynamicOps<Object> {
             Collection<Object> collection = (Collection<Object>) input;
             return DataResult.success(collection.stream().sorted(Comparator.comparing(Object::toString)));
         }
-        return DataResult.error("Not a collection: " + input);
+        return DataResult.error(() -> "Not a collection: " + input);
     }
 
     @Override
@@ -298,7 +298,7 @@ public class TomlCommentedConfigOps implements DynamicOps<Object> {
                 }
                 return DataResult.success(result);
             }
-            return DataResult.error("mergeToMap called with not a Config: " + prefix, prefix);
+            return DataResult.error(() -> "mergeToMap called with not a Config: " + prefix, prefix);
         }
     }
 

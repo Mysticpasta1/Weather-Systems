@@ -9,6 +9,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
+import net.minecraft.core.Vec3i;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.resources.ResourceLocation;
@@ -73,7 +74,7 @@ public class RainClient extends WeatherEventClient<RainClientSettings> {
         if (!(particleStrength <= 0.0F)) {
             Random random = new Random((long) ticks * 312987231L);
             LevelReader worldReader = mc.level;
-            BlockPos blockpos = new BlockPos(renderInfo.getPosition());
+            BlockPos blockpos = new BlockPos(new Vec3i((int) renderInfo.getPosition().x, (int) renderInfo.getPosition().y, (int) renderInfo.getPosition().z));
             BlockPos blockpos1 = null;
             int particleCount = (int)(100.0F * particleStrength * particleStrength) / (mc.options.particles().get() == ParticleStatus.DECREASED ? 2 : 1);
 
@@ -86,7 +87,7 @@ public class RainClient extends WeatherEventClient<RainClientSettings> {
                     continue;
                 }
 
-                if (motionBlockingHeightMinus1.getY() > 0 && motionBlockingHeightMinus1.getY() <= blockpos.getY() + 10 && motionBlockingHeightMinus1.getY() >= blockpos.getY() - 10 && biome.value().getPrecipitation() == Biome.Precipitation.RAIN && biome.value().getBaseTemperature() >= 0.15F) {
+                if (motionBlockingHeightMinus1.getY() > 0 && motionBlockingHeightMinus1.getY() <= blockpos.getY() + 10 && motionBlockingHeightMinus1.getY() >= blockpos.getY() - 10 && biome.value().getPrecipitationAt(blockpos) == Biome.Precipitation.RAIN && biome.value().getBaseTemperature() >= 0.15F) {
                     blockpos1 = motionBlockingHeightMinus1;
                     if (mc.options.particles().get() == ParticleStatus.MINIMAL) {
                         break;

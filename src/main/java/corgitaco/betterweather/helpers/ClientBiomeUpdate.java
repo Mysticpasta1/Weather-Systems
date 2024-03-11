@@ -5,6 +5,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Map;
 
@@ -18,7 +19,7 @@ public class ClientBiomeUpdate {
     }
 
     public void updateBiomeData() {
-        for (Map.Entry<ResourceKey<Biome>, Biome> entry : this.registryAccess.registryOrThrow(Registry.BIOME_REGISTRY).entrySet()) {
+        for (Map.Entry<ResourceKey<Biome>, Biome> entry : this.registryAccess.registryOrThrow(ForgeRegistries.BIOMES.getRegistryKey()).entrySet()) {
             Biome biome = entry.getValue();
             ResourceKey<Biome> biomeKey = entry.getKey();
             float weatherHumidityModifier = weatherContext == null ? 0.0F : (float) this.weatherContext.getCurrentWeatherEventSettings().getHumidityModifierAtPosition(null);

@@ -7,6 +7,7 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Map;
 import java.util.Set;
@@ -26,7 +27,7 @@ public class ServerBiomeUpdate {
 
     public void updateBiomeData() {
         Set<Holder<Biome>> validBiomes = this.chunkSource.getGenerator().getBiomeSource().possibleBiomes();
-        for (Map.Entry<ResourceKey<Biome>, Biome> entry : this.registryAccess.registryOrThrow(Registry.BIOME_REGISTRY).entrySet()) {
+        for (Map.Entry<ResourceKey<Biome>, Biome> entry : this.registryAccess.registryOrThrow(ForgeRegistries.BIOMES.getRegistryKey()).entrySet()) {
             Biome biome = entry.getValue();
             ResourceKey<Biome> biomeKey = entry.getKey();
 

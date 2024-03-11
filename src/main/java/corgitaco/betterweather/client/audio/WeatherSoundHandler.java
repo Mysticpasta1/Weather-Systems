@@ -1,6 +1,5 @@
 package corgitaco.betterweather.client.audio;
 
-import com.mojang.math.Vector3d;
 import corgitaco.betterweather.api.weather.WeatherEvent;
 import corgitaco.betterweather.api.weather.WeatherEventAudio;
 import corgitaco.betterweather.api.weather.WeatherEventClientSettings;
@@ -28,6 +27,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Vector3d;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,12 +44,12 @@ public class WeatherSoundHandler implements AmbientSoundHandler {
         this.player = player;
         this.soundHandler = soundHandler;
         this.biomeManager = biomeManager;
-        this.world = (ClientLevel) player.getLevel();
+        this.world = (ClientLevel) player.level();
     }
 
     @Override
     public void tick() {
-        BWWeatherEventContext weatherEventContext = ((BetterWeatherWorldData) player.getLevel()).getWeatherEventContext();
+        BWWeatherEventContext weatherEventContext = ((BetterWeatherWorldData) player.level()).getWeatherEventContext();
         if (weatherEventContext == null) {
             return;
         }
@@ -187,13 +187,13 @@ public class WeatherSoundHandler implements AmbientSoundHandler {
 
             Vec3 startPos = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
             Player player = Minecraft.getInstance().player;
-            byte brightness = (byte) (this.world.getBrightness(LightLayer.SKY, new BlockPos(startPos.x, startPos.y, startPos.z)));
+            byte brightness = (byte) (this.world.getBrightness(LightLayer.SKY, new BlockPos((int) startPos.x, (int) startPos.y, (int) startPos.z)));
             int vectorDistance = 35;
             double maxDistanceNormalised = 0; //average sample distance
 
             //Cast ray in every direction sampled
             for (int i = 0, vector3dsLength = vector3ds.length; i < vector3dsLength; i++) {
-                vector3ds[i].scale(vectorDistance);
+                vector3ds[i].mul(vectorDistance);
                 Vec3 endPos = startPos.add(vector3ds[i].x, vector3ds[i].y, vector3ds[i].z);
                 BlockHitResult result = world.clip(new ClipContext(startPos, endPos, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, null));
 

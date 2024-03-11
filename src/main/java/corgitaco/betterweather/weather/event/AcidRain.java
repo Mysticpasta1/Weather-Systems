@@ -1,6 +1,5 @@
 package corgitaco.betterweather.weather.event;
 
-import com.google.common.eventbus.Subscribe;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -15,11 +14,11 @@ import it.unimi.dsi.fastutil.objects.Object2FloatArrayMap;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobCategory;
@@ -30,10 +29,10 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.material.Material;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -82,15 +81,14 @@ public class AcidRain extends Rain {
     public static final ResourceLocation ACID_RAIN_LOCATION = new ResourceLocation(BetterWeather.MOD_ID, "textures/environment/acid_rain.png");
 
     public static final IdentityHashMap<ResourceLocation, ResourceLocation> DEFAULT_DECAYER = Util.make(new IdentityHashMap<>(), (map) -> {
-        for (Block block : Registry.BLOCK) {
-            Material material = block.defaultBlockState().getMaterial();
-            if (material == Material.LEAVES || material == Material.PLANT) {
-                map.put(Registry.BLOCK.getKey(block), (Registry.BLOCK.getKey(Blocks.AIR)));
+        for (Block block : ForgeRegistries.BLOCKS) {
+            if (block.defaultBlockState().is(BlockTags.LEAVES) || block.defaultBlockState().is(BlockTags.CROPS)) {
+                map.put(ForgeRegistries.BLOCKS.getKey(block), (ForgeRegistries.BLOCKS.getKey(Blocks.AIR)));
             }
         }
-        map.put(Registry.BLOCK.getKey(Blocks.GRASS_BLOCK), Registry.BLOCK.getKey(Blocks.DIRT));
-        map.put(Registry.BLOCK.getKey(Blocks.PODZOL), Registry.BLOCK.getKey(Blocks.DIRT));
-        map.put(Registry.BLOCK.getKey(Blocks.MYCELIUM), Registry.BLOCK.getKey(Blocks.DIRT));
+        map.put(ForgeRegistries.BLOCKS.getKey(Blocks.GRASS_BLOCK), ForgeRegistries.BLOCKS.getKey(Blocks.DIRT));
+        map.put(ForgeRegistries.BLOCKS.getKey(Blocks.PODZOL), ForgeRegistries.BLOCKS.getKey(Blocks.DIRT));
+        map.put(ForgeRegistries.BLOCKS.getKey(Blocks.MYCELIUM), ForgeRegistries.BLOCKS.getKey(Blocks.DIRT));
     });
 
     public static final HashMap<String, Float> DEFAULT_ENTITY_DAMAGE = Util.make(new HashMap<>(), (map) -> {
@@ -135,11 +133,11 @@ public class AcidRain extends Rain {
             }
 
             ResourceLocation entityTypeID = Blizzard.tryParse(key.toLowerCase());
-            if (entityTypeID != null && !Registry.ENTITY_TYPE.keySet().contains(entityTypeID)) {
+            if (entityTypeID != null && !ForgeRegistries.ENTITY_TYPES.containsKey(entityTypeID)) {
                 BetterWeather.LOGGER.error("\"" + key + "\" is not a valid entity ID. Skipping entry...");
                 continue;
             }
-            this.entityDamage.put(Registry.ENTITY_TYPE.getOptional(entityTypeID).get(), value);
+            this.entityDamage.put(ForgeRegistries.ENTITY_TYPES.getValue(entityTypeID), value);
         }
     }
 
@@ -179,7 +177,7 @@ public class AcidRain extends Rain {
 
         LivingEntity entity = event.getEntity();
 
-        Level world = entity.level;
+        Level world = entity.level();
         if (world.random.nextInt(entityDamageChance) == 0) {
             BlockPos entityPosition = entity.blockPosition();
             Holder<Biome> biome = world.getBiome(entityPosition);
@@ -188,7 +186,7 @@ public class AcidRain extends Rain {
             }
 
             if (this.entityDamage.containsKey(entity.getType())) {
-                entity.hurt(DamageSource.GENERIC, this.entityDamage.getFloat(entity.getType()));
+                entity.hurt((new DamageSource(Holder.direct(new DamageType("generic", 0.0F)))), this.entityDamage.getFloat(entity.getType()));
             }
         }
     }

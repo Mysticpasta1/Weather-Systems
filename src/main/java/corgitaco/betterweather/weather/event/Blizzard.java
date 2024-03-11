@@ -18,6 +18,7 @@ import net.minecraft.client.renderer.EffectInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffect;
@@ -60,7 +61,7 @@ public class Blizzard extends WeatherEvent {
         }), Codec.INT.fieldOf("chunkTickChance").forGetter(blizzard -> {
             return blizzard.chunkTickChance;
         }), ResourceLocation.CODEC.fieldOf("snowBlock").forGetter(blizzard -> {
-            return Registry.BLOCK.getKey(blizzard.snowBlock);
+            return ForgeRegistries.BLOCKS.getKey(blizzard.snowBlock);
         }), Codec.BOOL.fieldOf("snowLayering").forGetter(blizzard -> {
             return blizzard.snowLayers;
         }), Codec.BOOL.fieldOf("waterFreezes").forGetter(blizzard -> {
@@ -72,7 +73,7 @@ public class Blizzard extends WeatherEvent {
         }), Codec.INT.fieldOf("lightningChance").forGetter(rain -> {
             return rain.getLightningChance();
         })).apply(builder, (clientSettings, biomeCondition, temperatureOffsetRaw, humidityOffsetRaw, defaultChance, tickRate, blockLightThreshold, snowBlockID, snowLayers, waterFreezes, entityOrCategoryToEffectsMap, isThundering, lightningChance) -> {
-            Optional<Block> blockOptional = Registry.BLOCK.getOptional(snowBlockID);
+            Optional<Block> blockOptional = Optional.ofNullable(ForgeRegistries.BLOCKS.getValue(snowBlockID));
             if (!blockOptional.isPresent()) {
                 BetterWeather.LOGGER.error("\"" + snowBlockID.toString() + "\" is not a valid block ID in the registry, defaulting to \"minecraft:snow\"...");
             }
@@ -92,13 +93,13 @@ public class Blizzard extends WeatherEvent {
 
     public static final TomlCommentedConfigOps CONFIG_OPS = new TomlCommentedConfigOps(VALUE_COMMENTS, true);
 
-    public static final Blizzard DEFAULT = new Blizzard(new BlizzardClientSettings(new ColorSettings(Integer.MAX_VALUE, 0.0, Integer.MAX_VALUE, 0.0), 0.0F, 0.2F, false, Rain.SNOW_LOCATION, SoundRegistry.BLIZZARD_LOOP2, 0.6F, 0.6F), Rain.DEFAULT_BIOME_CONDITION, 0.1D, !MODIFY_TEMPERATURE ? 0.0 : -0.5, 0.1, 2, 10, Blocks.SNOW, true, true, Util.make(new HashMap<>(), ((stringListHashMap) -> stringListHashMap.put(Registry.ENTITY_TYPE.getKey(EntityType.PLAYER).toString(), ImmutableList.of(Objects.requireNonNull(Registry.MOB_EFFECT.getKey(MobEffects.MOVEMENT_SLOWDOWN)).toString())))), false, 0);
+    public static final Blizzard DEFAULT = new Blizzard(new BlizzardClientSettings(new ColorSettings(Integer.MAX_VALUE, 0.0, Integer.MAX_VALUE, 0.0), 0.0F, 0.2F, false, Rain.SNOW_LOCATION, Holder.direct(SoundRegistry.BLIZZARD_LOOP2), 0.6F, 0.6F), Rain.DEFAULT_BIOME_CONDITION, 0.1D, !MODIFY_TEMPERATURE ? 0.0 : -0.5, 0.1, 2, 10, Blocks.SNOW, true, true, Util.make(new HashMap<>(), ((stringListHashMap) -> stringListHashMap.put(ForgeRegistries.ENTITY_TYPES.getKey(EntityType.PLAYER).toString(), ImmutableList.of(Objects.requireNonNull(ForgeRegistries.MOB_EFFECTS.getKey(MobEffects.MOVEMENT_SLOWDOWN)).toString())))), false, 0);
 
-    public static final Blizzard DEFAULT_THUNDERING = new Blizzard(new BlizzardClientSettings(new ColorSettings(Integer.MAX_VALUE, 0.0, Integer.MAX_VALUE, 0.0), 0.0F, 0.2F, false, Rain.SNOW_LOCATION, SoundRegistry.BLIZZARD_LOOP2, 0.6F, 0.6F), Rain.DEFAULT_BIOME_CONDITION, 0.05D, !MODIFY_TEMPERATURE ? 0.0 : -0.5, 0.1, 2, 10, Blocks.SNOW, true, true, Util.make(new HashMap<>(), ((stringListHashMap) -> stringListHashMap.put(Registry.ENTITY_TYPE.getKey(EntityType.PLAYER).toString(), ImmutableList.of(Objects.requireNonNull(Registry.MOB_EFFECT.getKey(MobEffects.MOVEMENT_SLOWDOWN)).toString())))), true, 100000);
+    public static final Blizzard DEFAULT_THUNDERING = new Blizzard(new BlizzardClientSettings(new ColorSettings(Integer.MAX_VALUE, 0.0, Integer.MAX_VALUE, 0.0), 0.0F, 0.2F, false, Rain.SNOW_LOCATION, Holder.direct(SoundRegistry.BLIZZARD_LOOP2), 0.6F, 0.6F), Rain.DEFAULT_BIOME_CONDITION, 0.05D, !MODIFY_TEMPERATURE ? 0.0 : -0.5, 0.1, 2, 10, Blocks.SNOW, true, true, Util.make(new HashMap<>(), ((stringListHashMap) -> stringListHashMap.put(ForgeRegistries.ENTITY_TYPES.getKey(EntityType.PLAYER).toString(), ImmutableList.of(Objects.requireNonNull(ForgeRegistries.MOB_EFFECTS.getKey(MobEffects.MOVEMENT_SLOWDOWN)).toString())))), true, 100000);
 
 
     public static final Map<MobCategory, List<EntityType<?>>> CLASSIFICATION_ENTITY_TYPES = Util.make(new EnumMap<>(MobCategory.class), (map) -> {
-        for (EntityType<?> entityType : Registry.ENTITY_TYPE) {
+        for (EntityType<?> entityType : ForgeRegistries.ENTITY_TYPES) {
             map.computeIfAbsent(entityType.getCategory(), (mobCategory -> new ArrayList<>())).add(entityType);
         }
     });
@@ -140,11 +141,11 @@ public class Blizzard extends WeatherEvent {
             }
 
             ResourceLocation entityTypeID = tryParse(key.toLowerCase());
-            if (entityTypeID != null && !Registry.ENTITY_TYPE.keySet().contains(entityTypeID)) {
+            if (entityTypeID != null && !ForgeRegistries.ENTITY_TYPES.containsKey(entityTypeID)) {
                 BetterWeather.LOGGER.error("\"" + key + "\" is not a valid entity ID. Skipping entry...");
                 continue;
             }
-            addEntry(value, Registry.ENTITY_TYPE.getOptional(entityTypeID).get());
+            addEntry(value, ForgeRegistries.ENTITY_TYPES.getValue(entityTypeID));
         }
     }
 
@@ -260,8 +261,8 @@ public class Blizzard extends WeatherEvent {
                 if (!(variable.startsWith("$") || variable.startsWith("#"))) {
                     ResourceLocation resourceLocation = tryParse(variable);
                     if (resourceLocation != null) {
-                        if (Registry.MOB_EFFECT.keySet().contains(resourceLocation)) {
-                            effect = Registry.MOB_EFFECT.getOptional(resourceLocation).get();
+                        if (ForgeRegistries.MOB_EFFECTS.containsKey(resourceLocation)) {
+                            effect = ForgeRegistries.MOB_EFFECTS.getValue(resourceLocation);
                         } else {
                             return null;
                         }

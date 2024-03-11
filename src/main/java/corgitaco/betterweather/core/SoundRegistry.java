@@ -11,13 +11,13 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
 public class SoundRegistry {
-    public static SoundEvent BLIZZARD_LOOP1 = new SoundEvent(new ResourceLocation(BetterWeather.MOD_ID, "blizzard_loop1"));
-    public static SoundEvent BLIZZARD_LOOP2 = new SoundEvent(new ResourceLocation(BetterWeather.MOD_ID, "blizzard_loop2"));
-    public static SoundEvent BLIZZARD_LOOP3 = new SoundEvent(new ResourceLocation(BetterWeather.MOD_ID, "blizzard_loop3"));
-    public static SoundEvent BLIZZARD_LOOP4 = new SoundEvent(new ResourceLocation(BetterWeather.MOD_ID, "blizzard_loop4"));
-    public static SoundEvent BLIZZARD_LOOP5 = new SoundEvent(new ResourceLocation(BetterWeather.MOD_ID, "blizzard_loop5"));
-    public static SoundEvent BLIZZARD_LOOP6 = new SoundEvent(new ResourceLocation(BetterWeather.MOD_ID, "blizzard_loop6"));
-    public static SoundEvent BLIZZARD_LOOP7 = new SoundEvent(new ResourceLocation(BetterWeather.MOD_ID, "blizzard_loop7"));
+    public static SoundEvent BLIZZARD_LOOP1 = SoundEvent.createVariableRangeEvent(new ResourceLocation(BetterWeather.MOD_ID, "blizzard_loop1"));
+    public static SoundEvent BLIZZARD_LOOP2 = SoundEvent.createVariableRangeEvent(new ResourceLocation(BetterWeather.MOD_ID, "blizzard_loop2"));
+    public static SoundEvent BLIZZARD_LOOP3 = SoundEvent.createVariableRangeEvent(new ResourceLocation(BetterWeather.MOD_ID, "blizzard_loop3"));
+    public static SoundEvent BLIZZARD_LOOP4 = SoundEvent.createVariableRangeEvent(new ResourceLocation(BetterWeather.MOD_ID, "blizzard_loop4"));
+    public static SoundEvent BLIZZARD_LOOP5 = SoundEvent.createVariableRangeEvent(new ResourceLocation(BetterWeather.MOD_ID, "blizzard_loop5"));
+    public static SoundEvent BLIZZARD_LOOP6 = SoundEvent.createVariableRangeEvent(new ResourceLocation(BetterWeather.MOD_ID, "blizzard_loop6"));
+    public static SoundEvent BLIZZARD_LOOP7 = SoundEvent.createVariableRangeEvent(new ResourceLocation(BetterWeather.MOD_ID, "blizzard_loop7"));
 
     public static final DeferredRegister<SoundEvent> SOUND_EVENT_DEFERRED_REGISTER = DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, BetterWeather.MOD_ID);
 

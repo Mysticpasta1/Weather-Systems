@@ -56,7 +56,7 @@ public class WeatherDataPacket {
         } else {
             ctx.get().enqueueWork(() -> {
                 Player player = ctx.get().getSender();
-                if(player != null && player.level instanceof ServerLevel serverLevel) {
+                if(player != null && player.level() instanceof ServerLevel serverLevel) {
                     BWWeatherEventContext weatherEventContext = ((BetterWeatherWorldData) serverLevel).getWeatherEventContext();
                     if (weatherEventContext == null) {
                         throw new UnsupportedOperationException("There is no weather event context constructed for this world!");

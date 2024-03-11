@@ -183,7 +183,7 @@ public abstract class WeatherEventClient<T extends WeatherEventClientSettings> {
                     double d1 = (double)rainSizeZ[l1] * 0.5D;
                     blockpos$mutableblockpos.set((double)k1, p_109707_, (double)j1);
                     Biome biome = level.getBiome(blockpos$mutableblockpos).value();
-                    if (biome.getPrecipitation() != Biome.Precipitation.NONE) {
+                    if (biome.getPrecipitationAt(blockpos$mutableblockpos) != Biome.Precipitation.NONE) {
                         int i2 = level.getHeight(Heightmap.Types.MOTION_BLOCKING, k1, j1);
                         int j2 = j - l;
                         int k2 = j + l;

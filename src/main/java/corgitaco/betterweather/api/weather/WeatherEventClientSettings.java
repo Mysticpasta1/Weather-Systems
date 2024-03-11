@@ -1,12 +1,15 @@
 package corgitaco.betterweather.api.weather;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.Dynamic;
 import corgitaco.betterweather.api.BetterWeatherRegistry;
 import corgitaco.betterweather.api.client.ColorSettings;
 import corgitaco.betterweather.api.client.WeatherEventClient;
 import corgitaco.betterweather.data.storage.WeatherEventSavedData;
 import corgitaco.betterweather.weather.BWWeatherEventContext;
 import net.minecraft.Util;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.Mth;
 import net.minecraftforge.event.level.LevelEvent;
 
@@ -16,7 +19,7 @@ import java.util.function.Function;
 
 public abstract class WeatherEventClientSettings {
 
-    public static final Codec<WeatherEventClientSettings> CODEC = BetterWeatherRegistry.CLIENT_WEATHER_EVENT_SETTINGS.byNameCodec().dispatchStable(WeatherEventClientSettings::codec, Function.identity());
+    public static final Codec<WeatherEventClientSettings> CODEC = ExtraCodecs.lazyInitializedCodec(() -> BetterWeatherRegistry.CLIENT_WEATHER_EVENT_SETTINGS.get().getCodec()).dispatchStable(WeatherEventClientSettings::codec, Function.identity());
 
     private final ColorSettings colorSettings;
     private final float skyOpacity;

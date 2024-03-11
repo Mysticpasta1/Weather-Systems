@@ -15,7 +15,7 @@ public abstract class MixinWeatherCommand {
     @Inject(method = "setRain", at = @At("HEAD"), cancellable = true)
     private static void cancelRain(CommandSourceStack source, int p_139179_, CallbackInfoReturnable<Integer> cir) {
         if (((BetterWeatherWorldData) source.getLevel()).getWeatherEventContext() != null) {
-            source.sendSuccess(Component.translatable("commands.bw.vanillaweather.fail"), true);
+            source.sendSuccess(() -> Component.translatable("commands.bw.vanillaweather.fail"), true);
             cir.setReturnValue(0);
         }
     }
@@ -23,7 +23,7 @@ public abstract class MixinWeatherCommand {
     @Inject(method = "setClear", at = @At("HEAD"), cancellable = true)
     private static void cancelClear(CommandSourceStack source, int p_139174_, CallbackInfoReturnable<Integer> cir) {
         if (((BetterWeatherWorldData) source.getLevel()).getWeatherEventContext() != null) {
-            source.sendSuccess(Component.translatable("commands.bw.vanillaweather.fail"), true);
+            source.sendSuccess(() -> Component.translatable("commands.bw.vanillaweather.fail"), true);
             cir.setReturnValue(0);
         }
     }
@@ -31,7 +31,7 @@ public abstract class MixinWeatherCommand {
     @Inject(method = "setThunder", at = @At("HEAD"), cancellable = true)
     private static void cancelThunder(CommandSourceStack source, int p_139184_, CallbackInfoReturnable<Integer> cir) {
         if (((BetterWeatherWorldData) source.getLevel()).getWeatherEventContext() != null) {
-            source.sendSuccess(Component.translatable("commands.bw.vanillaweather.fail"), true);
+            source.sendSuccess(() -> Component.translatable("commands.bw.vanillaweather.fail"), true);
             cir.setReturnValue(0);
         }
     }

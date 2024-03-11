@@ -5,6 +5,7 @@
   "refmap": "betterweather.refmap.json",
   "mixins": [
     "access.BiomeAccess",
+    "biome.DownfallMixin",
     "biome.MixinBiome",
     "chunk.MixinChunk",
     "chunk.MixinChunkHolder",

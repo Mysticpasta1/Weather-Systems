@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class MixinClientPlayerEntity {
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void weatherAmbience(ClientLevel p_234112_, GameProfile p_234113_, ProfilePublicKey p_234114_, CallbackInfo ci) {
+    private void weatherAmbience(ClientLevel p_234112_, GameProfile pGameProfile, CallbackInfo ci) {
          new WeatherSoundHandler((AbstractClientPlayer) (Object) this, Minecraft.getInstance().getSoundManager(), p_234112_.getBiomeManager());
     }
 }

@@ -9,6 +9,7 @@ import corgitaco.betterweather.api.weather.WeatherEventAudio;
 import corgitaco.betterweather.api.weather.WeatherEventClientSettings;
 import corgitaco.betterweather.weather.event.client.BlizzardClient;
 import net.minecraft.Util;
+import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 
@@ -45,11 +46,11 @@ public class BlizzardClientSettings extends WeatherEventClientSettings implement
     });
 
     public final ResourceLocation textureLocation;
-    private final SoundEvent audio;
+    private final Holder<SoundEvent> audio;
     private final float audioVolume;
     private final float audioPitch;
 
-    public BlizzardClientSettings(ColorSettings colorSettings, float skyOpacity, float fogDensity, boolean sunsetSunriseColor, ResourceLocation textureLocation, SoundEvent audio, float audioVolume, float audioPitch) {
+    public BlizzardClientSettings(ColorSettings colorSettings, float skyOpacity, float fogDensity, boolean sunsetSunriseColor, ResourceLocation textureLocation, Holder<SoundEvent> audio, float audioVolume, float audioPitch) {
         super(colorSettings, skyOpacity, fogDensity, sunsetSunriseColor);
         this.textureLocation = textureLocation;
         this.audio = audio;
@@ -79,6 +80,6 @@ public class BlizzardClientSettings extends WeatherEventClientSettings implement
 
     @Override
     public SoundEvent getSound() {
-        return this.audio;
+        return this.audio.value();
     }
 }

@@ -15,6 +15,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.progress.ChunkProgressListener;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.RandomSequences;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.animal.horse.SkeletonHorse;
@@ -49,7 +50,7 @@ public abstract class MixinServerWorld implements BetterWeatherWorldData, Climat
     private BWWeatherEventContext weatherContext;
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void storeUpgradablePerWorldRegistry(MinecraftServer mc, Executor p_215000_, LevelStorageSource.LevelStorageAccess p_215001_, ServerLevelData p_215002_, ResourceKey<Level> resourceKey, LevelStem p_215004_, ChunkProgressListener p_215005_, boolean p_215006_, long p_215007_, List p_215008_, boolean p_215009_, CallbackInfo ci) {
+    private void storeUpgradablePerWorldRegistry(MinecraftServer mc, Executor pDispatcher, LevelStorageSource.LevelStorageAccess pLevelStorageAccess, ServerLevelData pServerLevelData, ResourceKey resourceKey, LevelStem pLevelStem, ChunkProgressListener pProgressListener, boolean pIsDebug, long pBiomeZoomSeed, List pCustomSpawners, boolean pTickTime, RandomSequences pRandomSequences, CallbackInfo ci) {
         if (mc.getLevel(resourceKey) != null) {
             new ServerBiomeUpdate(Objects.requireNonNull(mc.getLevel(resourceKey)).getChunkSource(), mc.registryAccess(), this.weatherContext).updateBiomeData();
         }

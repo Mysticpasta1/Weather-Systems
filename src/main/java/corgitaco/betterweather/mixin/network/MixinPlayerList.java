@@ -11,6 +11,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -22,7 +23,7 @@ public abstract class MixinPlayerList {
     private void sendContext(ServerPlayer playerIn, ServerLevel worldIn, CallbackInfo ci) {
         BWWeatherEventContext weatherEventContext = ((BetterWeatherWorldData) worldIn).getWeatherEventContext();
         if (weatherEventContext == null) {
-            weatherEventContext = ((BetterWeatherWorldData) worldIn).setWeatherEventContext(new BWWeatherEventContext(WeatherEventSavedData.get(worldIn).getEvent(), WeatherEventSavedData.get(worldIn).isWeatherForced(), worldIn.dimension().location(), worldIn.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY), BetterWeatherRegistry.getWeather()));
+            weatherEventContext = ((BetterWeatherWorldData) worldIn).setWeatherEventContext(new BWWeatherEventContext(WeatherEventSavedData.get(worldIn).getEvent(), WeatherEventSavedData.get(worldIn).isWeatherForced(), worldIn.dimension().location(), worldIn.registryAccess().registryOrThrow(ForgeRegistries.BIOMES.getRegistryKey()), BetterWeatherRegistry.getWeather()));
         }
         if (weatherEventContext != null) {
             NetworkHandler.sendToPlayer(playerIn, new WeatherContextConstructingPacket(weatherEventContext));

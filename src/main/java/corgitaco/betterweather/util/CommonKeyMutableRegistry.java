@@ -26,7 +26,7 @@ public class CommonKeyMutableRegistry extends MappedRegistry<Biome> {
 
     // Registry is the Server registry.
     public CommonKeyMutableRegistry(WritableRegistry<Biome> registry) {
-        super(registry.key(), registry.elementsLifecycle(), registry::createIntrusiveHolder);
+        super(registry.key(), registry.registryLifecycle(), false);
         registry.entrySet().forEach(entry -> {
             Biome biome1 = entry.getValue();
             Holder<Biome> biome2 = registerMapping(
