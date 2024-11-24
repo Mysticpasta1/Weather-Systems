@@ -25,8 +25,8 @@ public class ClientBiomeUpdate {
             float weatherHumidityModifier = weatherContext == null ? 0.0F : (float) this.weatherContext.getCurrentWeatherEventSettings().getHumidityModifierAtPosition(null);
             float weatherTemperatureModifier = weatherContext == null ? 0.0F : (float) this.weatherContext.getCurrentWeatherEventSettings().getTemperatureModifierAtPosition(null);
 
-            ((BiomeModifier) (Object) biome).setWeatherTempModifier(weatherTemperatureModifier);
-            ((BiomeModifier) (Object) biome).setWeatherHumidityModifier(weatherHumidityModifier);
+            ((BiomeModifier) biome).setWeatherTempModifier(weatherTemperatureModifier);
+            ((BiomeModifier) biome).setWeatherHumidityModifier(weatherHumidityModifier);
         }
     }
 }

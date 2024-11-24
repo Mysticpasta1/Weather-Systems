@@ -1,25 +1,27 @@
 package corgitaco.betterweather.api.weather;
 
+import com.mojang.datafixers.Products;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.Dynamic;
-import corgitaco.betterweather.api.BetterWeatherRegistry;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import corgitaco.betterweather.WeatherClientSettingType;
 import corgitaco.betterweather.api.client.ColorSettings;
 import corgitaco.betterweather.api.client.WeatherEventClient;
-import corgitaco.betterweather.data.storage.WeatherEventSavedData;
-import corgitaco.betterweather.weather.BWWeatherEventContext;
+import corgitaco.betterweather.weather.event.client.settings.CloudyClientSettings;
 import net.minecraft.Util;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.Mth;
-import net.minecraftforge.event.level.LevelEvent;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 
-public abstract class WeatherEventClientSettings {
+public abstract class WeatherClientSettings {
+    public static <T extends WeatherClientSettings> Products.P4<RecordCodecBuilder.Mu<T>, ColorSettings, Float, Float, Boolean> commonFields(RecordCodecBuilder.Instance<T> builder) {
+        return builder.group(ColorSettings.CODEC.fieldOf("colorSettings").forGetter(WeatherClientSettings::getColorSettings),
+                Codec.FLOAT.fieldOf("skyOpacity").forGetter(WeatherClientSettings::skyOpacity),
+                Codec.FLOAT.fieldOf("fogDensity").forGetter(WeatherClientSettings::fogDensity),
+                Codec.BOOL.fieldOf("sunsetSunriseColor").forGetter(WeatherClientSettings::sunsetSunriseColor));
+    }
 
-    public static final Codec<WeatherEventClientSettings> CODEC = ExtraCodecs.lazyInitializedCodec(() -> BetterWeatherRegistry.CLIENT_WEATHER_EVENT_SETTINGS.get().getCodec()).dispatchStable(WeatherEventClientSettings::codec, Function.identity());
+    public static final Codec<WeatherClientSettings> CODEC = WeatherClientSettingType.CODEC;
 
     private final ColorSettings colorSettings;
     private final float skyOpacity;
@@ -32,14 +34,12 @@ public abstract class WeatherEventClientSettings {
         map.put("sunsetSunriseColor", "Do sunsets/sunrises modify fog/sky color?");
     });
 
-    public WeatherEventClientSettings(ColorSettings colorSettings, float skyOpacity, float fogDensity, boolean sunsetSunriseColor) {
+    public WeatherClientSettings(ColorSettings colorSettings, float skyOpacity, float fogDensity, boolean sunsetSunriseColor) {
         this.colorSettings = colorSettings;
         this.skyOpacity = skyOpacity;
         this.fogDensity = fogDensity;
         this.sunsetSunriseColor = sunsetSunriseColor;
     }
-
-    public abstract Codec<? extends WeatherEventClientSettings> codec();
 
     public abstract WeatherEventClient<?> createClientSettings();
 
@@ -66,4 +66,6 @@ public abstract class WeatherEventClientSettings {
     public ColorSettings getColorSettings() {
         return colorSettings;
     }
+
+    abstract public WeatherClientSettingType<?> type();
 }

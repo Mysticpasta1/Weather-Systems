@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
@@ -52,7 +53,7 @@ public class BlizzardClient extends WeatherEventClient<BlizzardClientSettings> i
         }
     }
 
-    public void renderWeatherLegacyBlizzard(Minecraft mc, ClientLevel world, LightTexture lightTexture, int ticks, float partialTicks, double x, double y, double z, Predicate<Biome> biomePredicate) {
+    public void renderWeatherLegacyBlizzard(Minecraft mc, ClientLevel world, LightTexture lightTexture, int ticks, float partialTicks, double x, double y, double z, Predicate<ResourceKey<Biome>> biomePredicate) {
         float rainStrength = world.getRainLevel(partialTicks);
         lightTexture.turnOnLightLayer();
         int floorX = Mth.floor(x);
@@ -123,7 +124,7 @@ public class BlizzardClient extends WeatherEventClient<BlizzardClientSettings> i
                     int i4 = (k3 & '\uffff') * 3;
                     int j4 = (l3 * 3 + 240) / 4;
                     int k4 = (i4 * 3 + 240) / 4;
-                    if (biomePredicate.test(biome.value())) {
+                    if (biomePredicate.test(biome.unwrapKey().get())) {
                         bufferbuilder.vertex((double) graphicQualityX - x - rainSizeX + 0.5D + random.nextGaussian() * 2, (double) floorYPlusGraphicsQuality - y, (double) graphicQualityZ - z - rainSizeZ + 0.5D + random.nextGaussian()).uv(0.0F + f7, (float) floorYMinusGraphicsQuality * 0.25F - Math.abs(fallSpeed)).color(1.0F, 1.0F, 1.0F, ticksAndPartialTicks0).uv2(k4, j4).endVertex();
                         bufferbuilder.vertex((double) graphicQualityX - x + rainSizeX + 0.5D + random.nextGaussian() * 2, (double) floorYPlusGraphicsQuality - y, (double) graphicQualityZ - z + rainSizeZ + 0.5D + random.nextGaussian()).uv(1.0F + f7, (float) floorYMinusGraphicsQuality * 0.25F - Math.abs(fallSpeed)).color(1.0F, 1.0F, 1.0F, ticksAndPartialTicks0).uv2(k4, j4).endVertex();
                         bufferbuilder.vertex((double) graphicQualityX - x + rainSizeX + 0.5D + random.nextGaussian() * 2, (double) floorYMinusGraphicsQuality - y, (double) graphicQualityZ - z + rainSizeZ + 0.5D + random.nextGaussian()).uv(1.0F + f7, (float) floorYPlusGraphicsQuality * 0.25F - Math.abs(fallSpeed)).color(1.0F, 1.0F, 1.0F, ticksAndPartialTicks0).uv2(k4, j4).endVertex();
@@ -143,7 +144,7 @@ public class BlizzardClient extends WeatherEventClient<BlizzardClientSettings> i
     }
 
     @Override
-    public void clientTick(ClientLevel world, int tickSpeed, long worldTime, Minecraft mc, Predicate<Biome> biomePredicate) {
+    public void clientTick(ClientLevel world, int tickSpeed, long worldTime, Minecraft mc, Predicate<ResourceLocation> biomePredicate) {
     }
 
     @Override

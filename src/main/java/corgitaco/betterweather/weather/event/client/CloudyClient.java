@@ -4,7 +4,7 @@ import corgitaco.betterweather.api.client.WeatherEventClient;
 import corgitaco.betterweather.weather.event.client.settings.CloudyClientSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.world.level.biome.Biome;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.Predicate;
 
@@ -15,7 +15,7 @@ public class CloudyClient extends WeatherEventClient<CloudyClientSettings> {
     }
 
     @Override
-    public void clientTick(ClientLevel world, int tickSpeed, long worldTime, Minecraft mc, Predicate<Biome> biomePredicate) {
+    public void clientTick(ClientLevel world, int tickSpeed, long worldTime, Minecraft mc, Predicate<ResourceLocation> biomePredicate) {
 
     }
 }

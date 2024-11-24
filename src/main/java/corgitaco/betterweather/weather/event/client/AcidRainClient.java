@@ -1,11 +1,9 @@
 package corgitaco.betterweather.weather.event.client;
 
-import corgitaco.betterweather.weather.event.AcidRain;
 import corgitaco.betterweather.weather.event.client.settings.AcidRainClientSettings;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.ParticleStatus;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -26,7 +24,6 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.Random;
-import java.util.function.Predicate;
 
 public class AcidRainClient extends RainClient {
 

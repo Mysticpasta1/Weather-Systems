@@ -12,6 +12,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -69,7 +70,7 @@ public class RainClient extends WeatherEventClient<RainClientSettings> {
         return rainZ;
     }
 
-    public void weatherParticlesAndSound(Camera renderInfo, Minecraft mc, float ticks, Predicate<Biome> validBiomes) {
+    public void weatherParticlesAndSound(Camera renderInfo, Minecraft mc, float ticks, Predicate<ResourceKey<Biome>> validBiomes) {
         float particleStrength = mc.level.getRainLevel(1.0F) / (Minecraft.useFancyGraphics() ? 1.0F : 2.0F);
         if (!(particleStrength <= 0.0F)) {
             Random random = new Random((long) ticks * 312987231L);
@@ -83,7 +84,7 @@ public class RainClient extends WeatherEventClient<RainClientSettings> {
                 int randomAddZ = random.nextInt(21) - 10;
                 BlockPos motionBlockingHeightMinus1 = worldReader.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, blockpos.offset(randomAddX, 0, randomAddZ)).below();
                 Holder<Biome> biome = worldReader.getBiome(motionBlockingHeightMinus1);
-                if (!validBiomes.test(biome.value())) {
+                if (!validBiomes.test(biome.unwrapKey().get())) {
                     continue;
                 }
 
@@ -127,7 +128,7 @@ public class RainClient extends WeatherEventClient<RainClientSettings> {
     }
 
     @Override
-    public void clientTick(ClientLevel world, int tickSpeed, long worldTime, Minecraft mc, Predicate<Biome> biomePredicate) {
+    public void clientTick(ClientLevel world, int tickSpeed, long worldTime, Minecraft mc, Predicate<ResourceLocation> biomePredicate) {
 
     }
 }

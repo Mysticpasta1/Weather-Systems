@@ -1,20 +1,20 @@
 package corgitaco.betterweather.weather.event.client;
 
 import corgitaco.betterweather.api.client.WeatherEventClient;
-import corgitaco.betterweather.weather.event.client.settings.NoneClientSettings;
+import corgitaco.betterweather.weather.event.client.settings.SunnyClientSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.world.level.biome.Biome;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.Predicate;
 
-public class NoneClient extends WeatherEventClient<NoneClientSettings> {
-    public NoneClient(NoneClientSettings clientSettings) {
+public class NoneClient extends WeatherEventClient<SunnyClientSettings> {
+    public NoneClient(SunnyClientSettings clientSettings) {
         super(clientSettings);
     }
 
     @Override
-    public void clientTick(ClientLevel world, int tickSpeed, long worldTime, Minecraft mc, Predicate<Biome> biomePredicate) {
+    public void clientTick(ClientLevel world, int tickSpeed, long worldTime, Minecraft mc, Predicate<ResourceLocation> biomePredicate) {
 
     }
 }

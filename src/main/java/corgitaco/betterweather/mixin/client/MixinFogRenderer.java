@@ -1,7 +1,7 @@
 package corgitaco.betterweather.mixin.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import corgitaco.betterweather.api.weather.WeatherEvent;
+import corgitaco.betterweather.api.weather.Weather;
 import corgitaco.betterweather.helpers.BetterWeatherWorldData;
 import corgitaco.betterweather.weather.BWWeatherEventContext;
 import net.minecraft.client.Camera;
@@ -28,7 +28,7 @@ public abstract class MixinFogRenderer {
         ClientLevel world = Minecraft.getInstance().level;
         BWWeatherEventContext weatherEventContext = ((BetterWeatherWorldData) world).getWeatherEventContext();
         if (weatherEventContext != null) {
-            WeatherEvent currentEvent = weatherEventContext.getCurrentEvent();
+            Weather currentEvent = weatherEventContext.getCurrentEvent();
             float currentFogDensity = currentEvent.getClientSettings().fogDensity();
             float blendedFogDensity = weatherEventContext.getCurrentClientEvent().fogDensity(world, p_234173_.getBlockPosition(), currentEvent::isValidBiome);
 

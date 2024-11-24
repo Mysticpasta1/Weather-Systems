@@ -5,11 +5,11 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import corgitaco.betterweather.api.weather.WeatherEventClientSettings;
+import corgitaco.betterweather.api.weather.WeatherClientSettings;
+import corgitaco.betterweather.util.Textures;
 import corgitaco.betterweather.weather.BWWeatherEventContext;
-import corgitaco.betterweather.weather.event.AcidRain;
-import corgitaco.betterweather.weather.event.Blizzard;
-import corgitaco.betterweather.weather.event.Rain;
+import corgitaco.betterweather.weather.event.DefaultEvents;
+import corgitaco.betterweather.weather.event.Snow;
 import corgitaco.betterweather.weather.event.client.BlizzardClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -18,6 +18,7 @@ import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -28,7 +29,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.function.Predicate;
 
-public abstract class WeatherEventClient<T extends WeatherEventClientSettings> {
+import static corgitaco.betterweather.api.client.WeatherEventClient.LegacyWeatherRendering.*;
+
+public abstract class WeatherEventClient<T extends WeatherClientSettings> {
 
     private final ColorSettings colorSettings;
     private final float skyOpacity;
@@ -44,31 +47,49 @@ public abstract class WeatherEventClient<T extends WeatherEventClientSettings> {
         this.sunsetSunriseColor = clientSettings.sunsetSunriseColor();
     }
 
-    public void renderWeather(Minecraft mc, ClientLevel world, LightTexture lightTexture, int ticks, float partialTicks, double x, double y, double z, Predicate<Biome> biomePredicate) {
-        renderWeatherLegacy(mc, world, lightTexture, ticks, partialTicks, x, y, z, biomePredicate);
+    public void renderWeather(Minecraft mc, ClientLevel world, LightTexture lightTexture, int ticks, float partialTicks, double x, double y, double z, Predicate<ResourceKey<Biome>> biomePredicate) {
+        (switch (BWWeatherEventContext.currentEvent.getName()) {
+            case "none", "cloudy", "cloudy_thundering" -> CLEAR;
+            case "rain", "thundering" -> RAIN;
+            case "acid_rain", "acid_rain_thundering" -> ACIDIC;
+            case "blizzard" -> SNOWY;
+            case "blizzard_thundering" -> BLIZZARD;
+            default -> throw new IllegalStateException("Unexpected value: " + BWWeatherEventContext.currentEvent.getName());
+        }).render(mc, world, lightTexture, ticks, partialTicks, x, y, z, biomePredicate);
     }
 
-    public void renderWeatherLegacy(Minecraft mc, ClientLevel world, LightTexture lightTexture, int ticks, float partialTicks, double x, double y, double z, Predicate<Biome> biomePredicate) {
-        switch (BWWeatherEventContext.currentEvent.getName()) {
-            case "none", "cloudy", "cloudy_thundering", "betterweather-none", "betterweather-cloudy", "betterweather-cloudy_thundering" -> {
+    public enum LegacyWeatherRendering {
+        CLEAR,
+        RAIN {
+            @Override
+            public void render(Minecraft mc, ClientLevel world, LightTexture lightTexture, int ticks, float partialTicks, double x, double y, double z, Predicate<ResourceKey<Biome>> biomePredicate) {
+                renderVanillaWeather(mc, partialTicks, lightTexture, x, y, z, Textures.RAIN_LOCATION, Textures.SNOW_LOCATION, ticks, biomePredicate);
             }
-            case "rain", "betterweather-rain", "thundering", "betterweather-thundering" -> {
-                renderVanillaWeather(mc, partialTicks, lightTexture, x, y, z, Rain.RAIN_LOCATION, Rain.SNOW_LOCATION, ticks, biomePredicate);
+        },
+        ACIDIC {
+            @Override
+            public void render(Minecraft mc, ClientLevel world, LightTexture lightTexture, int ticks, float partialTicks, double x, double y, double z, Predicate<ResourceKey<Biome>> biomePredicate) {
+                renderVanillaWeather(mc, partialTicks, lightTexture, x, y, z, Textures.ACID_RAIN_LOCATION, Textures.SNOW_LOCATION, ticks, biomePredicate);
             }
-            case "acid_rain", "betterweather-acid_rain", "acid_rain_thundering", "betterweather-acid_rain_thundering" -> {
-                renderVanillaWeather(mc, partialTicks, lightTexture, x, y, z, AcidRain.ACID_RAIN_LOCATION, Rain.SNOW_LOCATION, ticks, biomePredicate);
+        },
+        SNOWY {
+            @Override
+            public void render(Minecraft mc, ClientLevel world, LightTexture lightTexture, int ticks, float partialTicks, double x, double y, double z, Predicate<ResourceKey<Biome>> biomePredicate) {
+                ((BlizzardClient) DefaultEvents.SNOW_DEFAULT.getClient()).renderWeatherLegacyBlizzard(mc, world, lightTexture, ticks, partialTicks, x, y, z, biomePredicate);
             }
-            case "blizzard", "betterweather-blizzard" -> {
-                ((BlizzardClient) Blizzard.DEFAULT.getClient()).renderWeatherLegacyBlizzard(mc, world, lightTexture, ticks, partialTicks, x, y, z, biomePredicate);
+        },
+        BLIZZARD {
+            @Override
+            public void render(Minecraft mc, ClientLevel world, LightTexture lightTexture, int ticks, float partialTicks, double x, double y, double z, Predicate<ResourceKey<Biome>> biomePredicate) {
+                ((BlizzardClient) DefaultEvents.SNOW_DEFAULT_THUNDERING.getClient()).renderWeatherLegacyBlizzard(mc, world, lightTexture, ticks, partialTicks, x, y, z, biomePredicate);
             }
-            case "blizzard_thundering", "betterweather-blizzard_thundering" -> {
-                ((BlizzardClient) Blizzard.DEFAULT_THUNDERING.getClient()).renderWeatherLegacyBlizzard(mc, world, lightTexture, ticks, partialTicks, x, y, z, biomePredicate);
-            }
-            default -> throw new IllegalStateException("Unexpected value: " + BWWeatherEventContext.currentEvent.getName());
+        };
+
+        public void render(Minecraft mc, ClientLevel world, LightTexture lightTexture, int ticks, float partialTicks, double x, double y, double z, Predicate<ResourceKey<Biome>> biomePredicate) {
         }
     }
 
-    public abstract void clientTick(ClientLevel world, int tickSpeed, long worldTime, Minecraft mc, Predicate<Biome> biomePredicate);
+    public abstract void clientTick(ClientLevel world, int tickSpeed, long worldTime, Minecraft mc, Predicate<ResourceLocation> biomePredicate);
 
     public boolean sunsetSunriseColor() {
         return sunsetSunriseColor;
@@ -95,17 +116,17 @@ public abstract class WeatherEventClient<T extends WeatherEventClientSettings> {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public float skyOpacity(ClientLevel world, BlockPos playerPos, Predicate<Biome> isValidBiome) {
+    public float skyOpacity(ClientLevel world, BlockPos playerPos, Predicate<ResourceKey<Biome>> isValidBiome) {
         return mixer(world, playerPos, 12, 2.0F, 1.0F - skyOpacity, isValidBiome);
     }
 
     @OnlyIn(Dist.CLIENT)
-    public float fogDensity(ClientLevel world, BlockPos playerPos, Predicate<Biome> isValidBiome) {
+    public float fogDensity(ClientLevel world, BlockPos playerPos, Predicate<ResourceKey<Biome>> isValidBiome) {
         return mixer(world, playerPos, 12, 0.1F, fogDensity, isValidBiome);
     }
 
 
-    private float mixer(ClientLevel world, BlockPos playerPos, int transitionRange, float weight, float targetMaxValue, Predicate<Biome> validBiomes) {
+    private float mixer(ClientLevel world, BlockPos playerPos, int transitionRange, float weight, float targetMaxValue, Predicate<ResourceKey<Biome>> validBiomes) {
         int x = playerPos.getX();
         int z = playerPos.getZ();
         float accumulated = 0.0F;
@@ -118,7 +139,7 @@ public abstract class WeatherEventClient<T extends WeatherEventClientSettings> {
                 pos.setZ(sampleZ);
 
                 Holder<Biome> biome = world.getBiome(pos);
-                if (validBiomes.test(biome.value())) {
+                if (validBiomes.test(biome.unwrapKey().get())) {
 
                     accumulated += weight * weight;
                 }
@@ -129,11 +150,11 @@ public abstract class WeatherEventClient<T extends WeatherEventClientSettings> {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public float cloudBlendStrength(ClientLevel world, BlockPos playerPos, Predicate<Biome> isValidBiome) {
+    public float cloudBlendStrength(ClientLevel world, BlockPos playerPos, Predicate<ResourceKey<Biome>> isValidBiome) {
         return mixer(world, playerPos, 15, 1.2F, (float) this.getColorSettings().getCloudColorBlendStrength(), isValidBiome);
     }
 
-    public void renderVanillaWeather(Minecraft mc, float p_109705_, LightTexture p_109704_, double p_109706_, double p_109707_, double p_109708_, ResourceLocation rainTexture, ResourceLocation snowTexture, int ticks, Predicate<Biome> isValidBiome) {
+    public static void renderVanillaWeather(Minecraft mc, float p_109705_, LightTexture p_109704_, double p_109706_, double p_109707_, double p_109708_, ResourceLocation rainTexture, ResourceLocation snowTexture, int ticks, Predicate<ResourceKey<Biome>> isValidBiome) {
         ClientLevel level = mc.level;
         if (level == null) {
             return;

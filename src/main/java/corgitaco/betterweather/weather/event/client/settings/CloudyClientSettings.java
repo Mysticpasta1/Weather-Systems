@@ -1,25 +1,18 @@
 package corgitaco.betterweather.weather.event.client.settings;
 
+import com.mojang.datafixers.Products;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import corgitaco.betterweather.WeatherClientSettingType;
 import corgitaco.betterweather.api.client.ColorSettings;
 import corgitaco.betterweather.api.client.WeatherEventClient;
-import corgitaco.betterweather.api.weather.WeatherEventClientSettings;
+import corgitaco.betterweather.api.weather.WeatherClientSettings;
 import corgitaco.betterweather.weather.event.client.CloudyClient;
 
-public class CloudyClientSettings extends WeatherEventClientSettings {
+public class CloudyClientSettings extends WeatherClientSettings {
 
-    public static final Codec<CloudyClientSettings> CODEC = RecordCodecBuilder.create((builder) -> {
-        return builder.group(ColorSettings.CODEC.fieldOf("colorSettings").forGetter(rainClientSettings -> {
-            return rainClientSettings.getColorSettings();
-        }), Codec.FLOAT.fieldOf("skyOpacity").forGetter(blizzardClientSettings -> {
-            return blizzardClientSettings.skyOpacity();
-        }), Codec.FLOAT.fieldOf("fogDensity").forGetter(blizzardClientSettings -> {
-            return blizzardClientSettings.fogDensity();
-        }), Codec.BOOL.fieldOf("sunsetSunriseColor").forGetter(blizzardClientSettings -> {
-            return blizzardClientSettings.sunsetSunriseColor();
-        })).apply(builder, CloudyClientSettings::new);
-    });
+    public static final Codec<CloudyClientSettings> CODEC = RecordCodecBuilder.create((builder) -> commonFields(builder)
+            .apply(builder, CloudyClientSettings::new));
 
 
     public CloudyClientSettings(ColorSettings colorSettings, float skyOpacity, float fogDensity, boolean sunsetSunriseColor) {
@@ -32,7 +25,7 @@ public class CloudyClientSettings extends WeatherEventClientSettings {
     }
 
     @Override
-    public Codec<? extends WeatherEventClientSettings> codec() {
-        return CODEC;
+    public WeatherClientSettingType<?> type() {
+        return WeatherClientSettingType.CLOUDY_CLIENT.get();
     }
 }

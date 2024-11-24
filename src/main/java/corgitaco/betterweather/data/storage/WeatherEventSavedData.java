@@ -1,7 +1,6 @@
 package corgitaco.betterweather.data.storage;
 
 import corgitaco.betterweather.BetterWeather;
-import corgitaco.betterweather.api.weather.WeatherEvent;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;

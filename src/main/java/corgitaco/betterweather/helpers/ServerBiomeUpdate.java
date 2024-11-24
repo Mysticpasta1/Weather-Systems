@@ -31,7 +31,7 @@ public class ServerBiomeUpdate {
             Biome biome = entry.getValue();
             ResourceKey<Biome> biomeKey = entry.getKey();
 
-            if (weatherContext != null && validBiomes.contains(biome) && weatherContext.getCurrentEvent().isValidBiome(biome)) {
+            if (weatherContext != null && validBiomes.stream().anyMatch(a -> a.is(biomeKey)) && weatherContext.getCurrentEvent().isValidBiome(biomeKey)) {
                 float weatherHumidityModifier = (float) this.weatherContext.getCurrentEvent().getHumidityModifierAtPosition(null);
                 float weatherTemperatureModifier = (float) this.weatherContext.getCurrentWeatherEventSettings().getTemperatureModifierAtPosition(null);
                 ((BiomeModifier) (Object) biome).setWeatherTempModifier(weatherTemperatureModifier);

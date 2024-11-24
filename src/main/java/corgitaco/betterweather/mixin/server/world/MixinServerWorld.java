@@ -1,16 +1,14 @@
 package corgitaco.betterweather.mixin.server.world;
 
 import corgitaco.betterweather.api.Climate;
-import corgitaco.betterweather.api.weather.WeatherEvent;
+import corgitaco.betterweather.api.weather.Weather;
 import corgitaco.betterweather.helpers.BetterWeatherWorldData;
 import corgitaco.betterweather.helpers.ServerBiomeUpdate;
 import corgitaco.betterweather.weather.BWWeatherEventContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.progress.ChunkProgressListener;
 import net.minecraft.util.RandomSource;
@@ -21,16 +19,12 @@ import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.animal.horse.SkeletonHorse;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.GameRules;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.level.storage.ServerLevelData;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -85,11 +79,11 @@ public abstract class MixinServerWorld implements BetterWeatherWorldData, Climat
 
         int xStart = chunkpos.getMinBlockX();
         int zStart = chunkpos.getMinBlockZ();
-        WeatherEvent currentEvent = weatherContext.getCurrentEvent();
+        Weather currentEvent = weatherContext.getCurrentEvent();
         if (currentEvent.isThundering() && world.random.nextInt(currentEvent.getLightningChance()) == 0) {
             BlockPos blockpos = BlockPos.of(world.getLightEmission(world.getBlockRandomPos(xStart, 0, zStart, 15)));
             Holder<Biome> biome = world.getBiome(blockpos);
-            if (currentEvent.isValidBiome(biome.value())) {
+            if (currentEvent.isValidBiome(biome.unwrapKey().get())) {
                 DifficultyInstance difficultyinstance = world.getCurrentDifficultyAt(blockpos);
                 boolean flag1 = world.getGameRules().getBoolean(GameRules.RULE_DOMOBSPAWNING) && world.random.nextDouble() < (double) difficultyinstance.getEffectiveDifficulty() * 0.01D;
                 if (flag1) {

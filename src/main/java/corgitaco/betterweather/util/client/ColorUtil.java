@@ -86,7 +86,7 @@ public final class ColorUtil {
             }
         }
 
-        return weatherEventContext != null && weatherEventContext.getCurrentEvent().isValidBiome(biome) ? mix(unpack(previous), unpack(weatherTarget), weatherBlend) : Integer.MAX_VALUE;
+        return weatherEventContext != null && weatherEventContext.getCurrentEvent().isValidBiome(key.location()) ? mix(unpack(previous), unpack(weatherTarget), weatherBlend) : Integer.MAX_VALUE;
     }
 
     private static int clamp(int target, int fallback) {

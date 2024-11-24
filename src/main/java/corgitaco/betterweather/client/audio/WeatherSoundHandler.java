@@ -1,8 +1,8 @@
 package corgitaco.betterweather.client.audio;
 
-import corgitaco.betterweather.api.weather.WeatherEvent;
+import corgitaco.betterweather.api.weather.Weather;
 import corgitaco.betterweather.api.weather.WeatherEventAudio;
-import corgitaco.betterweather.api.weather.WeatherEventClientSettings;
+import corgitaco.betterweather.api.weather.WeatherClientSettings;
 import corgitaco.betterweather.helpers.BetterWeatherWorldData;
 import corgitaco.betterweather.weather.BWWeatherEventContext;
 import net.minecraft.client.Minecraft;
@@ -12,6 +12,7 @@ import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
 import net.minecraft.client.resources.sounds.AmbientSoundHandler;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
@@ -54,10 +55,10 @@ public class WeatherSoundHandler implements AmbientSoundHandler {
             return;
         }
 
-        WeatherEvent currentEvent = weatherEventContext.getCurrentEvent();
-        WeatherEventClientSettings clientSettings = currentEvent.getClientSettings();
+        Weather currentEvent = weatherEventContext.getCurrentEvent();
+        WeatherClientSettings clientSettings = currentEvent.getClientSettings();
         if (clientSettings instanceof WeatherEventAudio) {
-            Biome currentBiome = world.getBiome(player.blockPosition()).value();
+            ResourceLocation currentBiome = world.getBiome(player.blockPosition()).unwrapKey().get().location();
             if (currentEvent.isValidBiome(currentBiome)) {
                 if (this.currentSound == null) {
                     this.currentSound = new WeatherSoundHandler.Sound(((WeatherEventAudio) clientSettings).getSound(), this.world, ((WeatherEventAudio) clientSettings).getVolume(), ((WeatherEventAudio) clientSettings).getPitch());
