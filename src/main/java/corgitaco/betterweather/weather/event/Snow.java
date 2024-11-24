@@ -6,7 +6,7 @@ import corgitaco.betterweather.WeatherType;
 import corgitaco.betterweather.api.weather.Weather;
 import corgitaco.betterweather.api.weather.WeatherClientSettings;
 import corgitaco.betterweather.util.TomlCommentedConfigOps;
-import corgitaco.betterweather.weather.event.client.settings.BlizzardClientSettings;
+import corgitaco.betterweather.weather.event.client.settings.SnowClientSettings;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -28,14 +28,14 @@ import java.util.*;
 public class Snow extends Weather {
 
     public static final Codec<Snow> CODEC = RecordCodecBuilder.<Snow>create(instance -> commonFields(instance)
-            .and(Codec.INT.fieldOf("blockLightThreshold").forGetter(blizzard -> blizzard.blockLightThreshold))
-    .and(Codec.INT.fieldOf("chunkTickChance").forGetter(blizzard -> blizzard.chunkTickChance))
-    .and(ForgeRegistries.BLOCKS.getCodec().optionalFieldOf("snowBlock", Blocks.SNOW).forGetter(blizzard -> blizzard.snowBlock))
-    .and(Codec.BOOL.fieldOf("snowLayering").forGetter(blizzard -> blizzard.snowLayers))
-    .and(Codec.BOOL.fieldOf("waterFreezes").forGetter(blizzard -> blizzard.waterFreezes)).apply(instance, Snow::new));
+            .and(Codec.INT.fieldOf("blockLightThreshold").forGetter(snow -> snow.blockLightThreshold))
+    .and(Codec.INT.fieldOf("chunkTickChance").forGetter(snow -> snow.chunkTickChance))
+    .and(ForgeRegistries.BLOCKS.getCodec().optionalFieldOf("snowBlock", Blocks.SNOW).forGetter(snow -> snow.snowBlock))
+    .and(Codec.BOOL.fieldOf("snowLayering").forGetter(snow -> snow.snowLayers))
+    .and(Codec.BOOL.fieldOf("waterFreezes").forGetter(snow -> snow.waterFreezes)).apply(instance, Snow::new));
 
     public static final Map<String, String> VALUE_COMMENTS = Util.make(new HashMap<>(Weather.VALUE_COMMENTS), (map) -> {
-        map.putAll(BlizzardClientSettings.VALUE_COMMENTS);
+        map.putAll(SnowClientSettings.VALUE_COMMENTS);
         map.put("blockLightThreshold", "The max sky brightness to allow snow to generate.");
         map.put("snowBlock", "What block generates when chunks are ticking? If this block has the layers property & \"snowLayering\" is true, this block will layer.");
         map.put("snowLayering", "Does the \"snowBlock\" layer when chunks are ticking? Only works if the\"snowBlock\" has a layers property!");
@@ -121,6 +121,6 @@ public class Snow extends Weather {
 
     @Override
     public WeatherType<?> type() {
-        return WeatherType.BLIZZARD.get();
+        return WeatherType.SNOW.get();
     }
 }

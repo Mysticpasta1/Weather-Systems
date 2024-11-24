@@ -34,40 +34,12 @@ public class RainClient extends WeatherEventClient<RainClientSettings> {
 
     protected final ResourceLocation rainTexture;
     protected final ResourceLocation snowTexture;
-    private static final float[] rainSizeX = new float[1024];
-    private static final float[] rainSizeZ = new float[1024];
     private int rainSoundTime;
 
     public RainClient(RainClientSettings clientSettings) {
         super(clientSettings);
         this.rainTexture = clientSettings.rainTexture;
         this.snowTexture = clientSettings.snowTexture;
-    }
-
-    public static float getRainSizeX() {
-        float rainX = 0;
-        for (int i = 0; i < 32; ++i) {
-            for (int j = 0; j < 32; ++j) {
-                float f = (float) (j - 16);
-                float f1 = (float) (i - 16);
-                float f2 = Mth.sqrt(f * f + f1 * f1);
-                rainX = rainSizeX[i << 5 | j] = -f1 / f2;
-            }
-        }
-        return rainX;
-    }
-
-    public static float getRainSizeZ() {
-        float rainZ = 0;
-        for (int i = 0; i < 32; ++i) {
-            for (int j = 0; j < 32; ++j) {
-                float f = (float) (j - 16);
-                float f1 = (float) (i - 16);
-                float f2 = Mth.sqrt(f * f + f1 * f1);
-                rainZ = rainSizeZ[i << 5 | j] = f / f2;
-            }
-        }
-        return rainZ;
     }
 
     public void weatherParticlesAndSound(Camera renderInfo, Minecraft mc, float ticks, Predicate<ResourceKey<Biome>> validBiomes) {

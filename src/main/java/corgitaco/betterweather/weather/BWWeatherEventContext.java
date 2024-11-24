@@ -96,7 +96,7 @@ public class BWWeatherEventContext implements WeatherEventContext {
         this.weatherConfigPath = BetterWeather.CONFIG_PATH.resolve(worldID.getNamespace()).resolve(worldID.getPath()).resolve("weather");
         this.weatherEventsConfigPath = this.weatherConfigPath.resolve("events");
         this.weatherConfigFile = this.weatherConfigPath.resolve(CONFIG_NAME).toFile();
-        BWWeatherEventContext.weatherEvents.put(DEFAULT, DefaultEvents.DEFAULT_SUNNY.setName(DEFAULT));
+        BWWeatherEventContext.weatherEvents.put(DEFAULT, DefaultEvents.SUNNY.setName(DEFAULT));
         this.weatherForced = weatherForced;
         boolean isClient = weatherEvents != null;
         boolean isPacket = biomeRegistry == null;
@@ -113,7 +113,7 @@ public class BWWeatherEventContext implements WeatherEventContext {
         }
 
         Weather currentWeather = BWWeatherEventContext.weatherEvents.get(currentEvent);
-        BWWeatherEventContext.currentEvent = BWWeatherEventContext.weatherEvents.getOrDefault(currentEvent, DefaultEvents.DEFAULT_SUNNY);
+        BWWeatherEventContext.currentEvent = BWWeatherEventContext.weatherEvents.getOrDefault(currentEvent, DefaultEvents.SUNNY);
         if (currentEvent != null && currentWeather == null) {
             BetterWeather.LOGGER.error("The last weather event for the world: \"" + worldID.toString() + "\" was not found in: \"" + this.weatherEventsConfigPath.toString() + "\".\nDefaulting to weather event: \"" + DEFAULT + "\".");
         } else {
@@ -431,7 +431,7 @@ public class BWWeatherEventContext implements WeatherEventContext {
             if(!weatherEvents.isEmpty()) {
                 return weatherEvents.values().iterator().next();
             } else {
-                BWWeatherEventContext.weatherEvents.put(DEFAULT, DefaultEvents.DEFAULT_SUNNY.setName(DEFAULT));
+                BWWeatherEventContext.weatherEvents.put(DEFAULT, DefaultEvents.SUNNY.setName(DEFAULT));
                 return BWWeatherEventContext.weatherEvents.get(DEFAULT);
             }
         }

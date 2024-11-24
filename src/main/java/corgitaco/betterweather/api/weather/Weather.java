@@ -249,8 +249,8 @@ public class Weather implements WeatherEventSettings {
                 Codec.list(Codec.pair(EntityCheck.ENTITY_CHECK_CODEC, Codec.list(MOB_EFFECT_INSTANCE_CODEC))).fieldOf("entityEffects").forGetter(BasicSettings::entityEffects)
         ).apply(instance, BasicSettings::new));
 
-        public BasicSettings(String biomeCOndition, double defaultChance, double temperatureOffset, double humidityOffset, boolean isThundering, int lightningChance) {
-            this(biomeCOndition, defaultChance, temperatureOffset, humidityOffset, isThundering, lightningChance, Collections.emptyList());
+        public BasicSettings(String biomeCondition, double defaultChance, double temperatureOffset, double humidityOffset, boolean isThundering, int lightningChance) {
+            this(biomeCondition, defaultChance, temperatureOffset, humidityOffset, isThundering, lightningChance, Collections.emptyList());
         }
     }
 

@@ -21,9 +21,9 @@ public record WeatherClientSettingType<T extends WeatherClientSettings>(Codec<T>
     public static final Codec<WeatherClientSettings> CODEC = REGISTRY.get().getCodec().dispatch(WeatherClientSettings::type, WeatherClientSettingType::codec);
 
     public static final RegistryObject<WeatherClientSettingType<AcidRainClientSettings>> ACID_RAIN_CLIENT = register("acid_rain", AcidRainClientSettings.CODEC);
-    public static final RegistryObject<WeatherClientSettingType<BlizzardClientSettings>> BLIZZARD_CLIENT = register("blizzard", BlizzardClientSettings.CODEC);
+    public static final RegistryObject<WeatherClientSettingType<SnowClientSettings>> SNOW_CLIENT = register("snow", SnowClientSettings.CODEC);
     public static final RegistryObject<WeatherClientSettingType<CloudyClientSettings>> CLOUDY_CLIENT = register("cloudy", CloudyClientSettings.CODEC);
-    public static final RegistryObject<WeatherClientSettingType<SunnyClientSettings>> NONE_CLIENT = register("none", SunnyClientSettings.CODEC);
+    public static final RegistryObject<WeatherClientSettingType<SunnyClientSettings>> SUNNY_CLIENT = register("sunny", SunnyClientSettings.CODEC);
     public static final RegistryObject<WeatherClientSettingType<RainClientSettings>> RAIN_CLIENT = register("rain", RainClientSettings.CODEC);
 
     public static <T extends WeatherClientSettings> RegistryObject<WeatherClientSettingType<T>> register(String name, Codec<T> codec) {

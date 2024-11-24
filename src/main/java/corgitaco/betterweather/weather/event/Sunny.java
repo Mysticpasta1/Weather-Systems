@@ -25,7 +25,7 @@ public class Sunny extends Weather {
 
     @Override
     public WeatherType<?> type() {
-        return WeatherType.NONE.get();
+        return WeatherType.SUNNY.get();
     }
 
     @Override

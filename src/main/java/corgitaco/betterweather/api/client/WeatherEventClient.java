@@ -8,9 +8,6 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import corgitaco.betterweather.api.weather.WeatherClientSettings;
 import corgitaco.betterweather.util.Textures;
 import corgitaco.betterweather.weather.BWWeatherEventContext;
-import corgitaco.betterweather.weather.event.DefaultEvents;
-import corgitaco.betterweather.weather.event.Snow;
-import corgitaco.betterweather.weather.event.client.BlizzardClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.GameRenderer;
@@ -49,11 +46,10 @@ public abstract class WeatherEventClient<T extends WeatherClientSettings> {
 
     public void renderWeather(Minecraft mc, ClientLevel world, LightTexture lightTexture, int ticks, float partialTicks, double x, double y, double z, Predicate<ResourceKey<Biome>> biomePredicate) {
         (switch (BWWeatherEventContext.currentEvent.getName()) {
-            case "none", "cloudy", "cloudy_thundering" -> CLEAR;
-            case "rain", "thundering" -> RAIN;
-            case "acid_rain", "acid_rain_thundering" -> ACIDIC;
-            case "blizzard" -> SNOWY;
-            case "blizzard_thundering" -> BLIZZARD;
+            case "sunny", "partly_cloudy", "cloudy", "overcast", "heat_lightning" -> CLEAR;
+            case "drizzle", "rain", "downpour", "lightning" -> RAIN;
+            case "acid_drizzle", "acid_rain", "acid_downpour", "acid_lightning" -> ACIDIC;
+            case "dusting" ,"snow", "blizzard", "thunder_blizzard" -> SNOWY;
             default -> throw new IllegalStateException("Unexpected value: " + BWWeatherEventContext.currentEvent.getName());
         }).render(mc, world, lightTexture, ticks, partialTicks, x, y, z, biomePredicate);
     }
@@ -75,13 +71,7 @@ public abstract class WeatherEventClient<T extends WeatherClientSettings> {
         SNOWY {
             @Override
             public void render(Minecraft mc, ClientLevel world, LightTexture lightTexture, int ticks, float partialTicks, double x, double y, double z, Predicate<ResourceKey<Biome>> biomePredicate) {
-                ((BlizzardClient) DefaultEvents.SNOW_DEFAULT.getClient()).renderWeatherLegacyBlizzard(mc, world, lightTexture, ticks, partialTicks, x, y, z, biomePredicate);
-            }
-        },
-        BLIZZARD {
-            @Override
-            public void render(Minecraft mc, ClientLevel world, LightTexture lightTexture, int ticks, float partialTicks, double x, double y, double z, Predicate<ResourceKey<Biome>> biomePredicate) {
-                ((BlizzardClient) DefaultEvents.SNOW_DEFAULT_THUNDERING.getClient()).renderWeatherLegacyBlizzard(mc, world, lightTexture, ticks, partialTicks, x, y, z, biomePredicate);
+                renderVanillaWeather(mc, partialTicks, lightTexture, x, y, z, Textures.SNOW_LOCATION, Textures.SNOW_LOCATION, ticks, biomePredicate);
             }
         };
 

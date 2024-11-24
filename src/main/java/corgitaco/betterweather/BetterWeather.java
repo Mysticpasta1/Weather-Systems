@@ -5,6 +5,7 @@ import corgitaco.betterweather.config.BetterWeatherClientConfig;
 import corgitaco.betterweather.config.BetterWeatherConfig;
 import corgitaco.betterweather.weather.event.*;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.state.properties.BellAttachType;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -38,16 +39,27 @@ public class BetterWeather {
     private void commonSetup(FMLCommonSetupEvent event) {
         BetterWeatherConfig.serialize();
 
-        BetterWeatherRegistry.DEFAULT_EVENTS.put(new ResourceLocation(BetterWeather.MOD_ID, "clear"), DefaultEvents.DEFAULT_SUNNY);
-        BetterWeatherRegistry.DEFAULT_EVENTS.put(new ResourceLocation(BetterWeather.MOD_ID, "acid_rain"), DefaultEvents.ACID_RAIN_DEFAULT);
-        BetterWeatherRegistry.DEFAULT_EVENTS.put(new ResourceLocation(BetterWeather.MOD_ID, "snow"), DefaultEvents.SNOW_DEFAULT);
-        BetterWeatherRegistry.DEFAULT_EVENTS.put(new ResourceLocation(BetterWeather.MOD_ID, "cloudy"), DefaultEvents.CLOUDY_DEFAULT);
-        BetterWeatherRegistry.DEFAULT_EVENTS.put(new ResourceLocation(BetterWeather.MOD_ID, "rain"), DefaultEvents.RAIN_DEFAULT);
+        BetterWeatherRegistry.DEFAULT_EVENTS.put(new ResourceLocation(BetterWeather.MOD_ID, "sunny"), DefaultEvents.SUNNY);
 
-        BetterWeatherRegistry.DEFAULT_EVENTS.put(new ResourceLocation(BetterWeather.MOD_ID, "acid_rain_thundering"), DefaultEvents.ACID_RAIN_DEFAULT_THUNDERING);
-        BetterWeatherRegistry.DEFAULT_EVENTS.put(new ResourceLocation(BetterWeather.MOD_ID, "blizzard"), DefaultEvents.SNOW_DEFAULT_THUNDERING);
-        BetterWeatherRegistry.DEFAULT_EVENTS.put(new ResourceLocation(BetterWeather.MOD_ID, "cloudy_thundering"), DefaultEvents.CLOUDY_DEFAULT_THUNDERING);
-        BetterWeatherRegistry.DEFAULT_EVENTS.put(new ResourceLocation(BetterWeather.MOD_ID, "lightning"), DefaultEvents.RAIN_DEFAULT_THUNDERING);
+        BetterWeatherRegistry.DEFAULT_EVENTS.put(new ResourceLocation(BetterWeather.MOD_ID, "partly_cloudy"), DefaultEvents.PARTLY_CLOUDY);
+        BetterWeatherRegistry.DEFAULT_EVENTS.put(new ResourceLocation(BetterWeather.MOD_ID, "acid_drizzle"), DefaultEvents.ACID_DRIZZLE);
+        BetterWeatherRegistry.DEFAULT_EVENTS.put(new ResourceLocation(BetterWeather.MOD_ID, "dusting"), DefaultEvents.DUSTING);
+        BetterWeatherRegistry.DEFAULT_EVENTS.put(new ResourceLocation(BetterWeather.MOD_ID, "drizzle"), DefaultEvents.DRIZZLE);
+
+        BetterWeatherRegistry.DEFAULT_EVENTS.put(new ResourceLocation(BetterWeather.MOD_ID, "cloudy"), DefaultEvents.CLOUDY);
+        BetterWeatherRegistry.DEFAULT_EVENTS.put(new ResourceLocation(BetterWeather.MOD_ID, "acid_rain"), DefaultEvents.ACID_RAIN);
+        BetterWeatherRegistry.DEFAULT_EVENTS.put(new ResourceLocation(BetterWeather.MOD_ID, "snow"), DefaultEvents.SNOW);
+        BetterWeatherRegistry.DEFAULT_EVENTS.put(new ResourceLocation(BetterWeather.MOD_ID, "rain"), DefaultEvents.RAIN);
+
+        BetterWeatherRegistry.DEFAULT_EVENTS.put(new ResourceLocation(BetterWeather.MOD_ID, "overcast"), DefaultEvents.OVERCAST);
+        BetterWeatherRegistry.DEFAULT_EVENTS.put(new ResourceLocation(BetterWeather.MOD_ID, "acid_downpour"), DefaultEvents.ACID_DOWNPOUR);
+        BetterWeatherRegistry.DEFAULT_EVENTS.put(new ResourceLocation(BetterWeather.MOD_ID, "blizzard"), DefaultEvents.BLIZZARD);
+        BetterWeatherRegistry.DEFAULT_EVENTS.put(new ResourceLocation(BetterWeather.MOD_ID, "downpour"), DefaultEvents.DOWNPOUR);
+
+        BetterWeatherRegistry.DEFAULT_EVENTS.put(new ResourceLocation(BetterWeather.MOD_ID, "heat_lightning"), DefaultEvents.HEAT_LIGHTNING);
+        BetterWeatherRegistry.DEFAULT_EVENTS.put(new ResourceLocation(BetterWeather.MOD_ID, "acid_lightning"), DefaultEvents.ACID_LIGHTNING);
+        BetterWeatherRegistry.DEFAULT_EVENTS.put(new ResourceLocation(BetterWeather.MOD_ID, "thunder_blizzard"), DefaultEvents.THUNDER_BLIZZARD);
+        BetterWeatherRegistry.DEFAULT_EVENTS.put(new ResourceLocation(BetterWeather.MOD_ID, "lightning"), DefaultEvents.LIGHTNING);
     }
 
     private void lateSetup(FMLLoadCompleteEvent event) {

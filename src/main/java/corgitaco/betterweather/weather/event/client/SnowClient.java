@@ -7,7 +7,7 @@ import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import corgitaco.betterweather.api.client.WeatherEventClient;
 import corgitaco.betterweather.api.weather.WeatherEventAudio;
-import corgitaco.betterweather.weather.event.client.settings.BlizzardClientSettings;
+import corgitaco.betterweather.weather.event.client.settings.SnowClientSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -25,7 +25,7 @@ import org.joml.Matrix4f;
 import java.util.Random;
 import java.util.function.Predicate;
 
-public class BlizzardClient extends WeatherEventClient<BlizzardClientSettings> implements WeatherEventAudio {
+public class SnowClient extends WeatherEventClient<SnowClientSettings> implements WeatherEventAudio {
     private final float[] rainSizeX = new float[1024];
     private final float[] rainSizeZ = new float[1024];
     private final ResourceLocation textureLocation;
@@ -35,7 +35,7 @@ public class BlizzardClient extends WeatherEventClient<BlizzardClientSettings> i
 
     private final Matrix4f modelMatrix = new Matrix4f();
 
-    public BlizzardClient(BlizzardClientSettings clientSettings) {
+    public SnowClient(SnowClientSettings clientSettings) {
         super(clientSettings);
         this.textureLocation = clientSettings.textureLocation;
         this.audio = clientSettings.getSound();

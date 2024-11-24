@@ -7,7 +7,7 @@ import corgitaco.betterweather.api.client.ColorSettings;
 import corgitaco.betterweather.api.client.WeatherEventClient;
 import corgitaco.betterweather.api.weather.WeatherEventAudio;
 import corgitaco.betterweather.api.weather.WeatherClientSettings;
-import corgitaco.betterweather.weather.event.client.BlizzardClient;
+import corgitaco.betterweather.weather.event.client.SnowClient;
 import net.minecraft.Util;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
@@ -16,14 +16,14 @@ import net.minecraft.sounds.SoundEvent;
 import java.util.HashMap;
 import java.util.Map;
 
-public class BlizzardClientSettings extends WeatherClientSettings implements WeatherEventAudio {
+public class SnowClientSettings extends WeatherClientSettings implements WeatherEventAudio {
 
-    public static final Codec<BlizzardClientSettings> CODEC = RecordCodecBuilder.create((builder) -> commonFields(builder)
-            .and(ResourceLocation.CODEC.fieldOf("rendererTexture").forGetter(blizzardClientSettings -> blizzardClientSettings.textureLocation))
-            .and(SoundEvent.CODEC.fieldOf("audioLocation").forGetter(blizzardClientSettings -> blizzardClientSettings.audio))
-            .and(Codec.FLOAT.fieldOf("audioVolume").forGetter(blizzardClientSettings -> blizzardClientSettings.audioVolume))
-            .and(Codec.FLOAT.fieldOf("audioPitch").forGetter(blizzardClientSettings -> blizzardClientSettings.audioPitch))
-            .apply(builder, BlizzardClientSettings::new));
+    public static final Codec<SnowClientSettings> CODEC = RecordCodecBuilder.create((builder) -> commonFields(builder)
+            .and(ResourceLocation.CODEC.fieldOf("rendererTexture").forGetter(snowClientSettings -> snowClientSettings.textureLocation))
+            .and(SoundEvent.CODEC.fieldOf("audioLocation").forGetter(snowClientSettings -> snowClientSettings.audio))
+            .and(Codec.FLOAT.fieldOf("audioVolume").forGetter(snowClientSettings -> snowClientSettings.audioVolume))
+            .and(Codec.FLOAT.fieldOf("audioPitch").forGetter(snowClientSettings -> snowClientSettings.audioPitch))
+            .apply(builder, SnowClientSettings::new));
 
     public static final Map<String, String> VALUE_COMMENTS = Util.make(new HashMap<>(WeatherClientSettings.VALUE_COMMENTS), (map) -> {
         map.put("rendererTexture", "The texture used by the weather renderer.");
@@ -37,7 +37,7 @@ public class BlizzardClientSettings extends WeatherClientSettings implements Wea
     private final float audioVolume;
     private final float audioPitch;
 
-    public BlizzardClientSettings(ColorSettings colorSettings, float skyOpacity, float fogDensity, boolean sunsetSunriseColor, ResourceLocation textureLocation, Holder<SoundEvent> audio, float audioVolume, float audioPitch) {
+    public SnowClientSettings(ColorSettings colorSettings, float skyOpacity, float fogDensity, boolean sunsetSunriseColor, ResourceLocation textureLocation, Holder<SoundEvent> audio, float audioVolume, float audioPitch) {
         super(colorSettings, skyOpacity, fogDensity, sunsetSunriseColor);
         this.textureLocation = textureLocation;
         this.audio = audio;
@@ -47,7 +47,7 @@ public class BlizzardClientSettings extends WeatherClientSettings implements Wea
 
     @Override
     public WeatherEventClient<?> createClientSettings() {
-        return new BlizzardClient(this);
+        return new SnowClient(this);
     }
 
     @Override
@@ -67,6 +67,6 @@ public class BlizzardClientSettings extends WeatherClientSettings implements Wea
 
     @Override
     public WeatherClientSettingType<?> type() {
-        return WeatherClientSettingType.BLIZZARD_CLIENT.get();
+        return WeatherClientSettingType.SNOW_CLIENT.get();
     }
 }

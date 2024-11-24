@@ -22,6 +22,6 @@ public class SunnyClientSettings extends WeatherClientSettings {
 
     @Override
     public WeatherClientSettingType<?> type() {
-        return WeatherClientSettingType.NONE_CLIENT.get();
+        return WeatherClientSettingType.SUNNY_CLIENT.get();
     }
 }
