@@ -2,7 +2,6 @@ package corgitaco.betterweather.weather.event;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import corgitaco.betterweather.WeatherType;
 import corgitaco.betterweather.api.weather.Weather;
 import corgitaco.betterweather.api.weather.WeatherClientSettings;
 import corgitaco.betterweather.util.TomlCommentedConfigOps;
@@ -120,7 +119,7 @@ public class Snow extends Weather {
 
 
     @Override
-    public WeatherType<?> type() {
-        return WeatherType.SNOW.get();
+    public WeatherType<Snow> type() {
+        return Weather.WeatherType.SNOW.get();
     }
 }

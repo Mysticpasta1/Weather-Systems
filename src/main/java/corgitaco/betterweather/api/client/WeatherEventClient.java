@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import corgitaco.betterweather.api.weather.WeatherClientSettings;
+import corgitaco.betterweather.api.weather.WeatherEventContext;
 import corgitaco.betterweather.util.Textures;
 import corgitaco.betterweather.weather.BWWeatherEventContext;
 import net.minecraft.client.Minecraft;
@@ -44,14 +45,25 @@ public abstract class WeatherEventClient<T extends WeatherClientSettings> {
         this.sunsetSunriseColor = clientSettings.sunsetSunriseColor();
     }
 
-    public void renderWeather(Minecraft mc, ClientLevel world, LightTexture lightTexture, int ticks, float partialTicks, double x, double y, double z, Predicate<ResourceKey<Biome>> biomePredicate) {
-        (switch (BWWeatherEventContext.currentEvent.getName()) {
+    public void renderWeather(WeatherEventContext context, Minecraft mc, ClientLevel world, LightTexture lightTexture, int ticks, float partialTicks, double x, double y, double z, Predicate<ResourceKey<Biome>> biomePredicate) {
+        context.getCurrentWeatherEventKey()
+
+        (switch ((world.currentEvent.getName()) {
             case "sunny", "partly_cloudy", "cloudy", "overcast", "heat_lightning" -> CLEAR;
             case "drizzle", "rain", "downpour", "lightning" -> RAIN;
             case "acid_drizzle", "acid_rain", "acid_downpour", "acid_lightning" -> ACIDIC;
             case "dusting" ,"snow", "blizzard", "thunder_blizzard" -> SNOWY;
             default -> throw new IllegalStateException("Unexpected value: " + BWWeatherEventContext.currentEvent.getName());
         }).render(mc, world, lightTexture, ticks, partialTicks, x, y, z, biomePredicate);
+    }
+
+    public void render(LegacyWeatherRendering renderingType, Minecraft mc, ClientLevel world, LightTexture lightTexture, int ticks, float partialTicks, double x, double y, double z, Predicate<ResourceKey<Biome>> biomePredicate) {
+        switch (renderingType) {
+            case CLEAR -> {}
+            case RAIN -> renderVanillaWeather(mc, partialTicks, lightTexture, x, y, z, Textures.RAIN_LOCATION, Textures.SNOW_LOCATION, ticks, biomePredicate);
+            case ACIDIC -> renderVanillaWeather(mc, partialTicks, lightTexture, x, y, z, Textures.ACID_RAIN_LOCATION, Textures.SNOW_LOCATION, ticks, biomePredicate);
+            case SNOWY -> renderVanillaWeather(mc, partialTicks, lightTexture, x, y, z, Textures.SNOW_LOCATION, Textures.SNOW_LOCATION, ticks, biomePredicate);
+        }
     }
 
     public enum LegacyWeatherRendering {
@@ -65,13 +77,11 @@ public abstract class WeatherEventClient<T extends WeatherClientSettings> {
         ACIDIC {
             @Override
             public void render(Minecraft mc, ClientLevel world, LightTexture lightTexture, int ticks, float partialTicks, double x, double y, double z, Predicate<ResourceKey<Biome>> biomePredicate) {
-                renderVanillaWeather(mc, partialTicks, lightTexture, x, y, z, Textures.ACID_RAIN_LOCATION, Textures.SNOW_LOCATION, ticks, biomePredicate);
             }
         },
         SNOWY {
             @Override
             public void render(Minecraft mc, ClientLevel world, LightTexture lightTexture, int ticks, float partialTicks, double x, double y, double z, Predicate<ResourceKey<Biome>> biomePredicate) {
-                renderVanillaWeather(mc, partialTicks, lightTexture, x, y, z, Textures.SNOW_LOCATION, Textures.SNOW_LOCATION, ticks, biomePredicate);
             }
         };
 

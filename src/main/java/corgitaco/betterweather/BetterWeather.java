@@ -3,9 +3,11 @@ package corgitaco.betterweather;
 import corgitaco.betterweather.api.BetterWeatherRegistry;
 import corgitaco.betterweather.config.BetterWeatherClientConfig;
 import corgitaco.betterweather.config.BetterWeatherConfig;
+import corgitaco.betterweather.weather.WeatherLoader;
 import corgitaco.betterweather.weather.event.*;
+import dev.architectury.registry.ReloadListenerRegistry;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.block.state.properties.BellAttachType;
+import net.minecraft.server.packs.PackType;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -33,13 +35,14 @@ public class BetterWeather {
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
         bus.addListener(this::commonSetup);
         bus.addListener(this::lateSetup);
-        BetterWeatherRegistry.init(bus);
+        BetterWeatherRegistry.init();
+        ReloadListenerRegistry.register(PackType.SERVER_DATA, WeatherLoader.getInstance());
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {
         BetterWeatherConfig.serialize();
 
-        BetterWeatherRegistry.DEFAULT_EVENTS.put(new ResourceLocation(BetterWeather.MOD_ID, "sunny"), DefaultEvents.SUNNY);
+//        BetterWeatherRegistry.DEFAULT_EVENTS.put(new ResourceLocation(BetterWeather.MOD_ID, "sunny"), DefaultEvents.SUNNY);
 
         BetterWeatherRegistry.DEFAULT_EVENTS.put(new ResourceLocation(BetterWeather.MOD_ID, "partly_cloudy"), DefaultEvents.PARTLY_CLOUDY);
         BetterWeatherRegistry.DEFAULT_EVENTS.put(new ResourceLocation(BetterWeather.MOD_ID, "acid_drizzle"), DefaultEvents.ACID_DRIZZLE);

@@ -40,7 +40,7 @@ public abstract class MixinWorldRenderer {
         BWWeatherEventContext weatherEventContext = ((BetterWeatherWorldData) this.level).getWeatherEventContext();
         if (weatherEventContext != null) {
             ci.cancel();
-            weatherEventContext.getCurrentClientEvent().renderWeather(minecraft, this.level, lightmapIn, ticks, partialTicks, x, y, z, weatherEventContext.getCurrentEvent()::isValidBiome);
+            weatherEventContext.getCurrentClientEvent().renderWeather(weatherEventContext, minecraft, this.level, lightmapIn, ticks, partialTicks, x, y, z, weatherEventContext.getCurrentEvent()::isValidBiome);
         }
     }
 
@@ -63,6 +63,8 @@ public abstract class MixinWorldRenderer {
         BWWeatherEventContext weatherEventContext = ((BetterWeatherWorldData) this.level).getWeatherEventContext();
         return weatherEventContext != null ? rainStrength * weatherEventContext.getCurrentClientEvent().skyOpacity(clientWorld, this.minecraft.player.blockPosition(), weatherEventContext.getCurrentEvent()::isValidBiome) : rainStrength;
     }
+
+
 
     @Inject(method = "buildClouds", at = @At(value = "HEAD"))
     private void modifyCloudColor(BufferBuilder p_234262_, double cloudsX, double cloudsY, double cloudsZ, Vec3 p_234266_, CallbackInfoReturnable<BufferBuilder.RenderedBuffer> cir) {

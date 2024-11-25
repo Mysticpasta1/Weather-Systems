@@ -15,7 +15,7 @@ import java.io.File;
 public class WeatherEventSavedData extends SavedData {
     public static String DATA_NAME = new ResourceLocation(BetterWeather.MOD_ID, "weather_event_data").toString();
     private boolean isWeatherForced;
-    private String event;
+    private ResourceLocation event;
 
     public WeatherEventSavedData() {
         super();
@@ -59,11 +59,11 @@ public class WeatherEventSavedData extends SavedData {
         return compound;
     }
 
-    public String getEvent() {
+    public ResourceLocation getEvent() {
         return event;
     }
 
-    public void setEvent(String event) {
+    public void setEvent(ResourceLocation event) {
         this.event = event;
         setDirty();
     }

@@ -1,10 +1,12 @@
 package corgitaco.betterweather.api.weather;
 
+import net.minecraft.resources.ResourceLocation;
+
 public interface WeatherEventContext {
 
     boolean isLocalizedWeather();
 
-    String getCurrentWeatherEventKey();
+    ResourceLocation getCurrentWeatherEventKey();
 
     WeatherEventSettings getCurrentWeatherEventSettings();
 }

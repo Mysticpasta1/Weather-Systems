@@ -3,25 +3,30 @@ package corgitaco.betterweather.api.weather;
 import com.mojang.datafixers.Products;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import corgitaco.betterweather.WeatherClientSettingType;
+import corgitaco.betterweather.BetterWeather;
 import corgitaco.betterweather.api.client.ColorSettings;
 import corgitaco.betterweather.api.client.WeatherEventClient;
-import corgitaco.betterweather.weather.event.client.settings.CloudyClientSettings;
+import corgitaco.betterweather.weather.event.client.settings.*;
+import dev.architectury.registry.registries.Registrar;
+import dev.architectury.registry.registries.RegistrarManager;
+import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.Util;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.Mth;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public abstract class WeatherClientSettings {
+    public static final Codec<WeatherClientSettings> CODEC = ExtraCodecs.lazyInitializedCodec(() -> WeatherClientSettingType.CODEC.dispatch(WeatherClientSettings::type, WeatherClientSettingType::codec));
+
     public static <T extends WeatherClientSettings> Products.P4<RecordCodecBuilder.Mu<T>, ColorSettings, Float, Float, Boolean> commonFields(RecordCodecBuilder.Instance<T> builder) {
         return builder.group(ColorSettings.CODEC.fieldOf("colorSettings").forGetter(WeatherClientSettings::getColorSettings),
                 Codec.FLOAT.fieldOf("skyOpacity").forGetter(WeatherClientSettings::skyOpacity),
                 Codec.FLOAT.fieldOf("fogDensity").forGetter(WeatherClientSettings::fogDensity),
                 Codec.BOOL.fieldOf("sunsetSunriseColor").forGetter(WeatherClientSettings::sunsetSunriseColor));
     }
-
-    public static final Codec<WeatherClientSettings> CODEC = WeatherClientSettingType.CODEC;
 
     private final ColorSettings colorSettings;
     private final float skyOpacity;
@@ -68,4 +73,21 @@ public abstract class WeatherClientSettings {
     }
 
     abstract public WeatherClientSettingType<?> type();
+
+    public record WeatherClientSettingType<T extends WeatherClientSettings>(Codec<T> codec) {
+        public static final Registrar<WeatherClientSettingType<?>> REGISTRY = RegistrarManager.get(BetterWeather.MOD_ID).<WeatherClientSettingType<?>>builder(new ResourceLocation(BetterWeather.MOD_ID, "abstract_pocket_type")).build();
+        public static final Codec<WeatherClientSettingType<?>> CODEC =  ResourceLocation.CODEC.xmap(REGISTRY::get, REGISTRY::getId);
+
+        public static final RegistrySupplier<WeatherClientSettingType<AcidRainClientSettings>> ACID_RAIN_CLIENT = register("acid_rain", AcidRainClientSettings.CODEC);
+        public static final RegistrySupplier<WeatherClientSettingType<SnowClientSettings>> SNOW_CLIENT = register("snow", SnowClientSettings.CODEC);
+        public static final RegistrySupplier<WeatherClientSettingType<CloudyClientSettings>> CLOUDY_CLIENT = register("cloudy", CloudyClientSettings.CODEC);
+        public static final RegistrySupplier<WeatherClientSettingType<SunnyClientSettings>> SUNNY_CLIENT = register("sunny", SunnyClientSettings.CODEC);
+        public static final RegistrySupplier<WeatherClientSettingType<RainClientSettings>> RAIN_CLIENT = register("rain", RainClientSettings.CODEC);
+
+        public static <T extends WeatherClientSettings> RegistrySupplier<WeatherClientSettingType<T>> register(String name, Codec<T> codec) {
+            return REGISTRY.register(new ResourceLocation(BetterWeather.MOD_ID, name), () -> new WeatherClientSettingType<>(codec));
+        }
+
+        public static void register() {}
+    }
 }

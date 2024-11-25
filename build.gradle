@@ -50,11 +50,13 @@ minecraft {
 
 repositories{
     maven {url = 'https://jitpack.io'}
+    maven { url "https://cursemaven.com" }
 }
 
 dependencies {
     minecraft "net.neoforged:forge:${mc_version}-${forge_version}"
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    implementation fg.deobf("curse.maven:architectury-api-419699:5137938")
 }
 
 ////////////////

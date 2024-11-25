@@ -1,13 +1,18 @@
 package corgitaco.betterweather.api.weather;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.mojang.datafixers.Products;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import corgitaco.betterweather.WeatherType;
+import corgitaco.betterweather.BetterWeather;
 import corgitaco.betterweather.api.client.ColorSettings;
 import corgitaco.betterweather.api.client.WeatherEventClient;
+import corgitaco.betterweather.weather.BiomeCheck;
 import corgitaco.betterweather.weather.event.EntityCheck;
+import corgitaco.betterweather.weather.event.Snow;
+import corgitaco.betterweather.weather.event.Sunny;
 import corgitaco.betterweather.weather.event.client.settings.SunnyClientSettings;
 import it.unimi.dsi.fastutil.objects.ReferenceArraySet;
 import net.minecraft.Util;
@@ -20,6 +25,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -45,9 +51,12 @@ import java.util.function.Predicate;
 
 @Mod.EventBusSubscriber
 public class Weather implements WeatherEventSettings {
+    public static final Codec<Weather> CODEC = ExtraCodecs.lazyInitializedCodec(() -> WeatherType.CODEC.dispatch(Weather::type, WeatherType::codec));
+
+
     public static <T extends Weather> Products.P3<RecordCodecBuilder.Mu<T>, WeatherClientSettings, BasicSettings, DecaySettings> commonFields(RecordCodecBuilder.Instance<T> builder) {
         return builder.group(
-                WeatherClientSettings.CODEC.fieldOf("client").forGetter(Weather::getClientSettings))
+                        WeatherClientSettings.CODEC.fieldOf("client").forGetter(Weather::getClientSettings))
                 .and(BasicSettings.CODEC.fieldOf("basic").forGetter(Weather::getBasicSettings))
                 .and(DecaySettings.CODEC.optionalFieldOf("decay", DecaySettings.NONE).forGetter(Weather::getDecaySetting));
     }
@@ -58,8 +67,6 @@ public class Weather implements WeatherEventSettings {
 
     public static final Logger LOGGER = LogManager.getLogger();
 
-
-    public static final Codec<Weather> CODEC = WeatherType.CODEC;
 
     public static final Map<String, String> VALUE_COMMENTS = Util.make(new HashMap<>(WeatherClientSettings.VALUE_COMMENTS), (map) -> {
         map.put("defaultChance", "What is the default chance for this weather event to occur? This value is only used when Seasons are NOT present in the given dimension.");
@@ -94,7 +101,8 @@ public class Weather implements WeatherEventSettings {
         return basicSettings.defaultChance();
     }
 
-    public void worldTick(ServerLevel world, int tickSpeed, long worldTime) {}
+    public void worldTick(ServerLevel world, int tickSpeed, long worldTime) {
+    }
 
     public void livingEntityUpdate(Entity entity) {
     }
@@ -128,6 +136,7 @@ public class Weather implements WeatherEventSettings {
 
         decaySettings.chunkTick(this::isValidBiome, chunk, world);
     }
+
     public final void doChunkTick(LevelChunk chunk, ServerLevel world) {
         chunkTick(chunk, world);
     }
@@ -179,13 +188,14 @@ public class Weather implements WeatherEventSettings {
         return this;
     }
 
-    public String getBiomeCondition() {
+    public List<BiomeCheck> getBiomeCondition() {
         return basicSettings.biomeCOndition();
     }
 
     public boolean isValidBiome(ResourceLocation biome) {
         return this.validBiomes.contains(biome);
     }
+
     public boolean isValidBiome(ResourceKey<Biome> biome) {
         return isValidBiome(biome.location());
     }
@@ -212,7 +222,7 @@ public class Weather implements WeatherEventSettings {
 
     @OnlyIn(Dist.CLIENT)
     public WeatherEventClient<?> getClient() {
-        if(client != null) {
+        if (client != null) {
             return client;
         } else {
             return sunnyClientSettings.createClientSettings();
@@ -224,8 +234,8 @@ public class Weather implements WeatherEventSettings {
         this.client = client;
     }
 
-    public WeatherType<?> type() {
-        return WeatherType.BASIC.get();
+    public WeatherType<? extends Weather> type() {
+        return WeatherType.BASIC;
     }
 
     @Override
@@ -238,23 +248,30 @@ public class Weather implements WeatherEventSettings {
         return getHumidityOffsetRaw();
     }
 
-    public record BasicSettings(String biomeCOndition, double defaultChance, double temperatureOffset, double humidityOffset, boolean isThundering, int lightningChance, List<Pair<EntityCheck, List<MobEffectInstance>>> entityEffects) {
+    public record BasicSettings(List<BiomeCheck> biomeCOndition, double defaultChance, double temperatureOffset,
+                                double humidityOffset, boolean isThundering, int lightningChance,
+                                List<Pair<EntityCheck, List<MobEffectInstance>>> entityEffects, boolean showClouds) {
         public static final Codec<BasicSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                Codec.STRING.fieldOf("biomeCondition").forGetter(BasicSettings::biomeCOndition),
+                BiomeCheck.ENTITY_CHECK_CODEC.listOf().fieldOf("biomeCondition").forGetter(BasicSettings::biomeCOndition),
                 Codec.DOUBLE.fieldOf("defaultChance").forGetter(BasicSettings::defaultChance),
                 Codec.DOUBLE.fieldOf("temperatureOffset").forGetter(BasicSettings::temperatureOffset),
                 Codec.DOUBLE.fieldOf("humidityOffset").forGetter(BasicSettings::humidityOffset),
                 Codec.BOOL.fieldOf("isThundering").forGetter(BasicSettings::isThundering),
                 Codec.INT.fieldOf("lightningChance").forGetter(BasicSettings::lightningChance),
-                Codec.list(Codec.pair(EntityCheck.ENTITY_CHECK_CODEC, Codec.list(MOB_EFFECT_INSTANCE_CODEC))).fieldOf("entityEffects").forGetter(BasicSettings::entityEffects)
+                Codec.list(Codec.pair(EntityCheck.ENTITY_CHECK_CODEC, Codec.list(MOB_EFFECT_INSTANCE_CODEC))).fieldOf("entityEffects").forGetter(BasicSettings::entityEffects),
+                Codec.BOOL.fieldOf("showClouds").forGetter(BasicSettings::showClouds)
         ).apply(instance, BasicSettings::new));
 
-        public BasicSettings(String biomeCondition, double defaultChance, double temperatureOffset, double humidityOffset, boolean isThundering, int lightningChance) {
-            this(biomeCondition, defaultChance, temperatureOffset, humidityOffset, isThundering, lightningChance, Collections.emptyList());
+        public BasicSettings(List<BiomeCheck> biomeCondition, double defaultChance, double temperatureOffset, double humidityOffset, boolean isThundering, int lightningChance) {
+            this(biomeCondition, defaultChance, temperatureOffset, humidityOffset, isThundering, lightningChance, Collections.emptyList(), true);
+        }
+        public BasicSettings(List<BiomeCheck> biomeCondition, double defaultChance, double temperatureOffset, double humidityOffset, boolean isThundering, int lightningChance, List<Pair<EntityCheck, List<MobEffectInstance>>> entityEffects) {
+            this(biomeCondition, defaultChance, temperatureOffset, humidityOffset, isThundering, lightningChance, entityEffects, true);
         }
     }
 
-    public record DecaySettings(int chunkTickChance, int entityDamageChance, Map<Block, Block> decayer, List<Pair<EntityCheck, Float>> entityDamage) {
+    public record DecaySettings(int chunkTickChance, int entityDamageChance, Map<Block, Block> decayer,
+                                List<Pair<EntityCheck, Float>> entityDamage) {
         public static final Codec<DecaySettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 Codec.INT.fieldOf("chunkTickChance").forGetter(DecaySettings::chunkTickChance),
                 Codec.INT.fieldOf("entityDamageChance").forGetter(DecaySettings::entityDamageChance),
@@ -284,9 +301,10 @@ public class Weather implements WeatherEventSettings {
 
                 var damage = entityDamage.stream().filter(a -> a.getFirst().isValid(entity)).findFirst().map(a -> a.getSecond()).orElse(0f);
 
-                if(damage == 0) entity.hurt((new DamageSource(Holder.direct(new DamageType("generic", 0.0F)))), damage);
+                if (damage == 0)
+                    entity.hurt((new DamageSource(Holder.direct(new DamageType("generic", 0.0F)))), damage);
             }
-    }
+        }
 
         public void chunkTick(Predicate<ResourceLocation> biomeCheck, LevelChunk chunk, ServerLevel world) {
             if (this.chunkTickChance < 1) {
@@ -304,10 +322,29 @@ public class Weather implements WeatherEventSettings {
                     BlockState currentBlock = checkBlockState(world.getBlockState(randomPos));
                     BlockState currentBlockDown = checkBlockState(world.getBlockState(randomPosDown));
 
-                    if(currentBlock != null) world.setBlockAndUpdate(randomPos, currentBlock);
-                    if(currentBlockDown != null) world.setBlockAndUpdate(randomPosDown, currentBlockDown);
+                    if (currentBlock != null) world.setBlockAndUpdate(randomPos, currentBlock);
+                    if (currentBlockDown != null) world.setBlockAndUpdate(randomPosDown, currentBlockDown);
                 }
             }
         }
+    }
+
+    public record WeatherType<T extends Weather>(Codec<T> codec) {
+        public static final BiMap<ResourceLocation, WeatherType<?>> REGISTRY = HashBiMap.create();
+        public static final Codec<WeatherType<?>> CODEC =  ResourceLocation.CODEC.xmap(REGISTRY::get, weatherType -> REGISTRY.inverse().get(weatherType));
+
+        public static final WeatherType<Weather> BASIC = register("basic", Weather.CODEC_IMPL);
+        public static final WeatherType<Snow> SNOW = register("snow", Snow.CODEC);
+        public static final WeatherType<Sunny> SUNNY = register("sunny", Sunny.CODEC);
+
+        public static <T extends Weather> WeatherType<T> register(String name, Codec<T> codec) {
+            var type = new WeatherType<>(codec);
+
+            REGISTRY.put(new ResourceLocation(BetterWeather.MOD_ID, name), type);
+            return type;
+        }
+
+        public static void register() {
         }
     }
+}
