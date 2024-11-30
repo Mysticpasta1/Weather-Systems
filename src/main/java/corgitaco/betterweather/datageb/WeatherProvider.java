@@ -76,11 +76,7 @@ public class WeatherProvider implements DataProvider {
 
 	private void createWeather(BiConsumer<ResourceLocation, JsonObject> consumer, ResourceLocation id, Weather weather) {
 		try {
-
-			var json = Weather.CODEC.encode(weather, JsonOps.INSTANCE, new JsonObject());
-
-		consumer.accept(id, json.get().orThrow().getAsJsonObject());
-
+			consumer.accept(id, Weather.CODEC.encodeStart(JsonOps.INSTANCE, weather).getOrThrow(false, System.out::println).getAsJsonObject());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

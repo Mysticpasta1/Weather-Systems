@@ -1,5 +1,6 @@
 package corgitaco.betterweather.weather.event.client.settings;
 
+import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
@@ -9,6 +10,7 @@ import corgitaco.betterweather.api.client.WeatherEventClient;
 import corgitaco.betterweather.weather.event.client.AcidRainClient;
 import net.minecraft.Util;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,9 +27,21 @@ public class AcidRainClientSettings extends RainClientSettings {
 
     public boolean addSmokeParticles = true;
 
-    public AcidRainClientSettings(ColorSettings colorSettings, float skyOpacity, float fogDensity, boolean sunsetSunriseColor, ResourceLocation rainTexture, ResourceLocation snowTexture, boolean addSmokeParticles) {
-        this(colorSettings, skyOpacity, skyOpacity, sunsetSunriseColor, LegacyWeatherRendering.ACIDIC, rainTexture, snowTexture, addSmokeParticles);
+    public AcidRainClientSettings(JsonObject json) {
+        this(
+                new ColorSettings(GsonHelper.getAsJsonObject(json, "colorSettings")),
+                GsonHelper.getAsFloat(json, "skyOpacity"),
+                GsonHelper.getAsFloat(json, "fogDensity"),
+                GsonHelper.getAsBoolean(json, "sunsetSunriseColor"),
+                LegacyWeatherRendering.valueOf(GsonHelper.getAsString(json, "renderingType")),
+                new ResourceLocation(GsonHelper.getAsString(json, "rainTexture")),
+                new ResourceLocation(GsonHelper.getAsString(json, "snowTexture")),
+                GsonHelper.getAsBoolean(json, "addSmokeParticles")
+        );
+    }
 
+    public AcidRainClientSettings(ColorSettings colorSettings, float skyOpacity, float fogDensity, boolean sunsetSunriseColor, ResourceLocation rainTexture, ResourceLocation snowTexture, boolean addSmokeParticles) {
+        this(colorSettings, skyOpacity, fogDensity, sunsetSunriseColor, LegacyWeatherRendering.ACIDIC, rainTexture, snowTexture, addSmokeParticles);
     }
 
     public AcidRainClientSettings(ColorSettings colorSettings, float skyOpacity, float fogDensity, boolean sunsetSunriseColor, LegacyWeatherRendering weatherRendering, ResourceLocation rainTexture, ResourceLocation snowTexture, boolean addSmokeParticles) {
@@ -42,6 +56,6 @@ public class AcidRainClientSettings extends RainClientSettings {
 
     @Override
     public WeatherClientSettingType<?> type() {
-        return WeatherClientSettingType.ACID_RAIN_CLIENT.get();
+        return WeatherClientSettingType.ACID_RAIN_CLIENT;
     }
 }

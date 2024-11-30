@@ -1,0 +1,34 @@
+{
+  "type": "betterweather:basic",
+  "basic": {
+    "biomeCondition": [
+      "#minecraft:is_overworld"
+    ],
+    "defaultChance": 0.7,
+    "entityEffects": {},
+    "humidityOffset": 0.1,
+    "isThundering": false,
+    "lightningChance": 0,
+    "showClouds": true,
+    "temperatureOffset": 0.0
+  },
+  "client": {
+    "type": "betterweather:rain",
+    "colorSettings": {
+      "cloudColorBlendStrength": 1.0,
+      "cloudTargetHexColor": "ff59648e",
+      "fogColorBlendStrength": 1.0,
+      "fogTargetHexColor": "ff59648e",
+      "foliageColorBlendStrength": 0.1,
+      "foliageTargetHexColor": "",
+      "grassColorBlendStrength": 0.1,
+      "grassTargetHexColor": "",
+      "skyColorBlendStrength": 1.0,
+      "skyTargetHexColor": "ff677288"
+    },
+    "rainTexture": "minecraft:textures/environment/rain.png",
+    "renderingType": "rain",
+    "skyOpacity": 0.0,
+    "snowTexture": "minecraft:textures/environment/snow.png"
+  }
+}

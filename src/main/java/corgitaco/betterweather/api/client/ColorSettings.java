@@ -1,8 +1,10 @@
 package corgitaco.betterweather.api.client;
 
+import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.Util;
+import net.minecraft.util.GsonHelper;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -73,6 +75,21 @@ public class ColorSettings {
 
     public ColorSettings(int targetFoliageHexColor, double foliageColorBlendStrength, int targetGrassColor, double grassColorBlendStrength) {
         this(targetFoliageHexColor, foliageColorBlendStrength, targetGrassColor, grassColorBlendStrength, targetFoliageHexColor, 0, targetFoliageHexColor, 0, targetFoliageHexColor, 0);
+    }
+
+    public ColorSettings(JsonObject json) {
+        this(
+                GsonHelper.getAsInt(json, "targetFoliageHexColor"),
+                GsonHelper.getAsDouble(json, "foliageColorBlendStrength"),
+                GsonHelper.getAsInt(json, "targetGrassHexColor"),
+                GsonHelper.getAsDouble(json, "grassColorBlendStrength"),
+                GsonHelper.getAsInt(json, "targetSkyHexColor"),
+                GsonHelper.getAsDouble(json, "targetFogHexColor"),
+                GsonHelper.getAsInt(json, "fogColorBlendStrength"),
+                GsonHelper.getAsDouble(json, "skyColorBlendStrength"),
+                GsonHelper.getAsInt(json, "targetCloudHexColor"),
+                GsonHelper.getAsDouble(json, "cloudColorBlendStrength")
+        );
     }
 
     public ColorSettings(int targetFoliageHexColor, double foliageColorBlendStrength, int targetGrassColor, double grassColorBlendStrength, int targetSkyHexColor, double skyColorBlendStrength, int targetFogHexColor, double fogColorBlendStrength, int targetCloudHexColor, double cloudColorBlendStrength) {

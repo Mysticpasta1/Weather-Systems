@@ -1,5 +1,6 @@
 package corgitaco.betterweather.weather.event.client.settings;
 
+import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import corgitaco.betterweather.api.client.ColorSettings;
@@ -10,9 +11,13 @@ import corgitaco.betterweather.core.SoundRegistry;
 import corgitaco.betterweather.weather.event.client.SnowClient;
 import net.minecraft.Util;
 import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.GsonHelper;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,15 +29,20 @@ public class SnowClientSettings extends WeatherClientSettings implements Weather
             .and(SoundSetting.CODEC.fieldOf("soundSetting").forGetter(snowClientSettings -> snowClientSettings.soundSettings))
             .apply(builder, SnowClientSettings::new));
 
-//    public static final Map<String, String> VALUE_COMMENTS = Util.make(new HashMap<>(WeatherClientSettings.VALUE_COMMENTS), (map) -> {
-//        map.put("rendererTexture", "The texture used by the weather renderer.");
-//        map.put("audioLocation", "The audio played by the weather.");
-//        map.put("audioVolume", "The volume of the audio played by the weather.");
-//        map.put("audioPitch", "The pitch of the audio played by the weather.");
-//    });
-
     public final ResourceLocation textureLocation;
     private final SoundSetting soundSettings;
+
+    public SnowClientSettings(JsonObject json) {
+        this(
+                new ColorSettings(GsonHelper.getAsJsonObject(json, "colorSettings")),
+                GsonHelper.getAsFloat(json, "skyOpacity"),
+                GsonHelper.getAsFloat(json, "fogDensity"),
+                GsonHelper.getAsBoolean(json, "sunsetSunriseColor"),
+                LegacyWeatherRendering.valueOf(GsonHelper.getAsString(json, "renderingType")),
+                new ResourceLocation(GsonHelper.getAsString(json, "textureLocation")),
+                SoundSetting.fromJson(json, "soundSettings")
+        );
+    }
 
     public SnowClientSettings(ColorSettings colorSettings, float skyOpacity, float fogDensity, boolean sunsetSunriseColor, ResourceLocation textureLocation, SoundSetting soundSettings) {
         this(colorSettings, skyOpacity, fogDensity, sunsetSunriseColor, LegacyWeatherRendering.SNOWY, textureLocation, soundSettings);
@@ -66,7 +76,7 @@ public class SnowClientSettings extends WeatherClientSettings implements Weather
 
     @Override
     public WeatherClientSettingType<?> type() {
-        return WeatherClientSettingType.SNOW_CLIENT.get();
+        return WeatherClientSettingType.SNOW_CLIENT;
     }
 
     public record SoundSetting(float audioVolume, float audioPitch, Holder<SoundEvent> audio) {
@@ -77,5 +87,15 @@ public class SnowClientSettings extends WeatherClientSettings implements Weather
         ).apply(instance, SoundSetting::new));
         public static final SoundSetting EMPTY = new SoundSetting(0.0F, 0.0F, Holder.direct(SoundEvents.EMPTY));
         public static final SoundSetting BLIZZARD = new SoundSetting(0.6F, 0.6F, Holder.direct(SoundRegistry.BLIZZARD_LOOP2));
+
+        public static SoundSetting fromJson(JsonObject json, String name) {
+            var soundJson = json.getAsJsonObject(name);
+
+            var audioVolume = GsonHelper.getAsFloat(soundJson, "audioVolume");
+            var audioPitch = GsonHelper.getAsFloat(soundJson, "audioPitch");
+            var audio = BuiltInRegistries.SOUND_EVENT.getHolder(ResourceKey.create(Registries.SOUND_EVENT, new ResourceLocation(GsonHelper.getAsString(soundJson, "audio")))).orElse(BuiltInRegistries.SOUND_EVENT.createIntrusiveHolder(SoundEvents.EMPTY));
+
+            return new SoundSetting(audioVolume, audioPitch, audio);
+        }
     }
 }

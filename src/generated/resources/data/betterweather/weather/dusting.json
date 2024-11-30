@@ -1,0 +1,52 @@
+{
+  "type": "betterweather:snow",
+  "basic": {
+    "biomeCondition": [
+      "#minecraft:is_overworld"
+    ],
+    "defaultChance": 0.1,
+    "entityEffects": {
+      "minecraft:player": [
+        {
+          "effect": "minecraft:slowness"
+        }
+      ]
+    },
+    "humidityOffset": 0.1,
+    "isThundering": false,
+    "lightningChance": 0,
+    "showClouds": true,
+    "temperatureOffset": 0.0
+  },
+  "blockLightThreshold": 10,
+  "chunkTickChance": 2,
+  "client": {
+    "type": "betterweather:snow",
+    "colorSettings": {
+      "cloudColorBlendStrength": 0.0,
+      "cloudTargetHexColor": "",
+      "fogColorBlendStrength": 0.0,
+      "fogTargetHexColor": "",
+      "foliageColorBlendStrength": 0.0,
+      "foliageTargetHexColor": "",
+      "grassColorBlendStrength": 0.0,
+      "grassTargetHexColor": "",
+      "skyColorBlendStrength": 0.0,
+      "skyTargetHexColor": ""
+    },
+    "fogDensity": 0.2,
+    "rendererTexture": "minecraft:textures/environment/snow.png",
+    "renderingType": "snowy",
+    "skyOpacity": 0.0,
+    "soundSetting": {
+      "audio": {
+        "sound_id": "minecraft:intentionally_empty"
+      },
+      "audioPitch": 0.0,
+      "audioVolume": 0.0
+    },
+    "sunsetSunriseColor": false
+  },
+  "snowLayering": false,
+  "waterFreezes": true
+}

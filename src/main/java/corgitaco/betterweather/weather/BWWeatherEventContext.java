@@ -35,7 +35,7 @@ import java.util.*;
 public class BWWeatherEventContext implements WeatherEventContext {
 
     public static final Codec<BWWeatherEventContext> PACKET_CODEC = RecordCodecBuilder.create((builder) -> {
-        return builder.group(ResourceLocation.CODEC.fieldOf("currentEvent").forGetter((weatherEventContext) -> {
+        return builder.group(ResourceLocation.CODEC.optionalFieldOf("currentEvent", null).forGetter((weatherEventContext) -> {
             return weatherEventContext.currentEvent;
         }), Codec.BOOL.fieldOf("weatherForced").forGetter((weatherEventContext) -> {
             return weatherEventContext.weatherForced;

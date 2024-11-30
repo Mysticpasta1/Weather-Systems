@@ -1,0 +1,50 @@
+{
+  "type": "betterweather:basic",
+  "basic": {
+    "biomeCondition": [
+      "#minecraft:is_overworld"
+    ],
+    "defaultChance": 0.125,
+    "entityEffects": {},
+    "humidityOffset": 0.1,
+    "isThundering": true,
+    "lightningChance": 100000,
+    "showClouds": true,
+    "temperatureOffset": 0.0
+  },
+  "client": {
+    "type": "betterweather:acid_rain",
+    "colorSettings": {
+      "cloudColorBlendStrength": 1.0,
+      "cloudTargetHexColor": "ff555f87",
+      "fogColorBlendStrength": 1.0,
+      "fogTargetHexColor": "ff555f87",
+      "foliageColorBlendStrength": 0.1,
+      "foliageTargetHexColor": "",
+      "grassColorBlendStrength": 0.1,
+      "grassTargetHexColor": "",
+      "skyColorBlendStrength": 1.0,
+      "skyTargetHexColor": "ff2a2d33"
+    },
+    "rainTexture": "betterweather:textures/environment/acid_rain.png",
+    "renderingType": "acidic",
+    "skyOpacity": 0.0,
+    "smokeParticles": true,
+    "snowTexture": "minecraft:textures/environment/snow.png"
+  },
+  "decay": {
+    "chunkTickChance": 150,
+    "decayer": {
+      "minecraft:grass_block": "minecraft:dirt",
+      "minecraft:mycelium": "minecraft:dirt",
+      "minecraft:podzol": "minecraft:dirt"
+    },
+    "entityDamage": {
+      "@ambient": 0.5,
+      "@creature": 0.5,
+      "@monster": 0.5,
+      "minecraft:player": 0.5
+    },
+    "entityDamageChance": 100
+  }
+}

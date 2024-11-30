@@ -1,5 +1,7 @@
 package corgitaco.betterweather.weather;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;
 import corgitaco.betterweather.weather.event.EntityCheck;
 import net.minecraft.core.HolderSet;
@@ -25,6 +27,10 @@ public interface BiomeCheck {
             else return new TypeCheck(ResourceKey.create(Registries.BIOME, location));
         }
     }, Object::toString);
+
+    static BiomeCheck fromJson(JsonObject json) {
+        return null;
+    }
 
     public boolean isValid(Registry<Biome> registry, Biome biome);
 

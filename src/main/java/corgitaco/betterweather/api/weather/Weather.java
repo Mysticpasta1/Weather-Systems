@@ -2,9 +2,12 @@ package corgitaco.betterweather.api.weather;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.mojang.datafixers.Products;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import corgitaco.betterweather.BetterWeather;
 import corgitaco.betterweather.api.client.ColorSettings;
@@ -15,19 +18,20 @@ import corgitaco.betterweather.weather.event.Snow;
 import corgitaco.betterweather.weather.event.Sunny;
 import corgitaco.betterweather.weather.event.client.settings.SunnyClientSettings;
 import it.unimi.dsi.fastutil.objects.ReferenceArraySet;
-import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.ExtraCodecs;
+import net.minecraft.util.GsonHelper;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -47,12 +51,16 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+import static net.minecraft.core.registries.BuiltInRegistries.*;
 
 @Mod.EventBusSubscriber
 public class Weather implements WeatherEventSettings {
-    public static final Codec<Weather> CODEC = WeatherType.CODEC.dispatch(Weather::type, WeatherType::codec);
 
+    public static final Codec<Weather> CODEC = WeatherType.CODEC.dispatch(Weather::type, WeatherType::codec);
 
     public static <T extends Weather> Products.P3<RecordCodecBuilder.Mu<T>, WeatherClientSettings, BasicSettings, DecaySettings> commonFields(RecordCodecBuilder.Instance<T> builder) {
         return builder.group(
@@ -61,26 +69,21 @@ public class Weather implements WeatherEventSettings {
                 .and(DecaySettings.CODEC.optionalFieldOf("decay", DecaySettings.NONE).forGetter(Weather::getDecaySetting));
     }
 
+    public static record Effect(MobEffect pEffect/*, int pDuration, int pAmplifier, boolean pAmbient, boolean pVisible, boolean pShowIcon*/) {
+        public static final Codec<Effect> CODEC = RecordCodecBuilder.create(inst -> inst.group(BuiltInRegistries.MOB_EFFECT.byNameCodec().fieldOf("effect").forGetter(Effect::pEffect)/*, Codec.INT.fieldOf("duration").forGetter(Effect::pDuration), Codec.INT.fieldOf("amplifier").forGetter(Effect::pAmplifier), Codec.BOOL.fieldOf("ambient").forGetter(Effect::pAmbient), Codec.BOOL.fieldOf("visible").forGetter(Effect::pVisible), Codec.BOOL.fieldOf("showIcon").forGetter(Effect::pShowIcon)*/).apply(inst, Effect::new));
+
+        public static Effect from(MobEffect effect) {
+            var instance = new MobEffectInstance(effect);
+            return new Effect(effect);
+        }
+    }
+
     public static final Codec<MobEffectInstance> MOB_EFFECT_INSTANCE_CODEC = CompoundTag.CODEC.xmap(MobEffectInstance::load, mobEffectInstance -> mobEffectInstance.save(new CompoundTag()));
 
     public static final Codec<Weather> CODEC_IMPL = RecordCodecBuilder.create(instance -> commonFields(instance).apply(instance, Weather::new));
 
     public static final Logger LOGGER = LogManager.getLogger();
 
-
-    public static final Map<String, String> VALUE_COMMENTS = Util.make(new HashMap<>(WeatherClientSettings.VALUE_COMMENTS), (map) -> {
-        map.put("defaultChance", "What is the default chance for this weather event to occur? This value is only used when Seasons are NOT present in the given dimension.");
-        map.put("temperatureOffset", "What is the temperature offset for valid biomes?");
-        map.put("humidityOffset", "What is the temperature offset for valid biomes?");
-        map.put("isThundering", "Determines whether or not this weather event may spawn lightning and sets world info internally for MC and mods to use.");
-        map.put("lightningChance", "How often does lightning spawn? Requires \"isThundering\" to be true.");
-        map.put("type", "Target Weather Event's Registry ID to configure settings for in this config.");
-        map.put("biomeCondition", "Better Weather uses a prefix system for what biomes weather is allowed to function in.\n Prefix Guide:\n \"#\" - Biome category representable.\n \"$\" - Biome dictionary representable.\n \",\" - Creates a new condition, separate from the previous.\n \"ALL\" - Spawn in all biomes(no condition).\n \"!\" - Negates/flips/does the reverse of the condition.\n \"\" - No prefix serves as a biome ID OR Mod ID representable.\n\n Here are a few examples:\n1. \"byg#THE_END, $OCEAN\" would mean that the ore may spawn in biomes with the name space \"byg\" AND in the \"END\" biome category, OR all biomes in the \"OCEAN\" dictionary.\n2. \"byg:guiana_shield, #MESA\" would mean that the ore may spawn in the \"byg:guiana_shield\" OR all biomes in the \"MESA\" category.\n3. \"byg#ICY$MOUNTAIN\" would mean that the ore may only spawn in biomes from byg in the \"ICY\" category and \"MOUNTAIN\" dictionary type.\n4. \"!byg#DESERT\" would mean that the ore may only spawn in biomes that are NOT from byg and NOT in the \"DESERT\" category.\n5. \"ALL\", spawn everywhere. \n6. \"\" Don't spawn anywhere.");
-        map.put("entityDamageChance", "The chance of an entity getting damaged every tick when acid rain is on the player's position.");
-        map.put("decayer", "What the specified block(left) \"decays\" into(right).");
-        map.put("entityDamage", "Entity/Category(left) damage strength(right).");
-        map.put("chunkTickChance", "The chance of a chunk being ticked for this tick.");
-    });
 
     private final BasicSettings basicSettings;
     private final DecaySettings decaySettings;
@@ -95,6 +98,24 @@ public class Weather implements WeatherEventSettings {
         this.clientSettings = clientSettings;
         this.basicSettings = basicSettings;
         this.decaySettings = decaySettings;
+    }
+
+//    public Weather(JsonObject json) {
+//        this(
+//                WeatherClientSettings.fromJson(GsonHelper.getAsJsonObject(json, "clientSettings")),
+//                new BasicSettings(GsonHelper.getAsJsonObject(json, "basicSettings")),
+//                new DecaySettings(GsonHelper.getAsJsonObject(json, "decaySettings"))
+//        );
+//    }
+
+    public JsonObject toJson() {
+        var json = new JsonObject();
+        json.addProperty("type", WeatherType.REGISTRY.inverse().get(type()).toString());
+//        json.addProperty("clientSettings", this.clientSettings.toJson());
+//        json.addProperty("basicSettings", this.basicSettings.toJson());
+//        json.addProperty("decaySettings", DecaySettings.CODEC.encodeStart(JsonOps.INSTANCE, this.decaySettings).getOrThrow(false, System.out::println));
+
+        return json;
     }
 
     public final double getDefaultChance() {
@@ -179,7 +200,7 @@ public class Weather implements WeatherEventSettings {
     }
 
     public WeatherClientSettings getClientSettings() {
-        return Objects.requireNonNullElse(clientSettings, sunnyClientSettings);
+        return clientSettings;
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -250,7 +271,7 @@ public class Weather implements WeatherEventSettings {
 
     public record BasicSettings(List<BiomeCheck> biomeCOndition, double defaultChance, double temperatureOffset,
                                 double humidityOffset, boolean isThundering, int lightningChance,
-                                List<Pair<EntityCheck, List<MobEffectInstance>>> entityEffects, boolean showClouds) {
+                                Map<EntityCheck, List<Effect>> entityEffects, boolean showClouds) {
         public static final Codec<BasicSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 BiomeCheck.ENTITY_CHECK_CODEC.listOf().fieldOf("biomeCondition").forGetter(BasicSettings::biomeCOndition),
                 Codec.DOUBLE.fieldOf("defaultChance").forGetter(BasicSettings::defaultChance),
@@ -258,27 +279,50 @@ public class Weather implements WeatherEventSettings {
                 Codec.DOUBLE.fieldOf("humidityOffset").forGetter(BasicSettings::humidityOffset),
                 Codec.BOOL.fieldOf("isThundering").forGetter(BasicSettings::isThundering),
                 Codec.INT.fieldOf("lightningChance").forGetter(BasicSettings::lightningChance),
-                Codec.list(Codec.pair(EntityCheck.ENTITY_CHECK_CODEC, Codec.list(MOB_EFFECT_INSTANCE_CODEC))).fieldOf("entityEffects").forGetter(BasicSettings::entityEffects),
+                Codec.unboundedMap(EntityCheck.ENTITY_CHECK_CODEC, Codec.list(Effect.CODEC)).fieldOf("entityEffects").forGetter(BasicSettings::entityEffects),
                 Codec.BOOL.fieldOf("showClouds").forGetter(BasicSettings::showClouds)
         ).apply(instance, BasicSettings::new));
 
-        public BasicSettings(List<BiomeCheck> biomeCondition, double defaultChance, double temperatureOffset, double humidityOffset, boolean isThundering, int lightningChance) {
-            this(biomeCondition, defaultChance, temperatureOffset, humidityOffset, isThundering, lightningChance, Collections.emptyList(), true);
+//        public BasicSettings(JsonObject json) {
+//            this(
+//                    json.getAsJsonArray("biomeCondition").asList().stream().filter(JsonElement::isJsonObject).map(JsonElement::getAsJsonObject).map(BiomeCheck::fromJson).toList(),
+//                    GsonHelper.getAsDouble(json, "defaultChance"),
+//                    GsonHelper.getAsDouble(json, "temperatureOffset"),
+//                    GsonHelper.getAsDouble(json, "humidityOffset"),
+//                    GsonHelper.getAsBoolean(json, "isThundering"),
+//                    GsonHelper.getAsInt(json, "lightningChance"),
+//                    GsonHelper.getAsJsonObject(json, "entityEffects").entrySet().stream().map(entry -> {
+//                        var key = EntityCheck.fromString(entry.getKey());
+//
+//                        var value = entry.getValue().getAsJsonArray().asList().stream().filter(a -> a.isJsonObject()).map(a -> a.getAsJsonObject()).map(a -> MOB_EFFECT_INSTANCE_CODEC.decode(JsonOps.INSTANCE, a).getOrThrow(false, System.out::println).getFirst()).toList();
+//
+//                        return new Pair<>(key, value);
+//                    }).toList(),
+//                    GsonHelper.getAsBoolean(json, "showClouds")
+//            );
+//        }
+
+        private Object effectInstanceFromJson(JsonElement value) {
+            return null;
         }
-        public BasicSettings(List<BiomeCheck> biomeCondition, double defaultChance, double temperatureOffset, double humidityOffset, boolean isThundering, int lightningChance, List<Pair<EntityCheck, List<MobEffectInstance>>> entityEffects) {
+
+        public BasicSettings(List<BiomeCheck> biomeCondition, double defaultChance, double temperatureOffset, double humidityOffset, boolean isThundering, int lightningChance) {
+            this(biomeCondition, defaultChance, temperatureOffset, humidityOffset, isThundering, lightningChance, Collections.emptyMap(), true);
+        }
+        public BasicSettings(List<BiomeCheck> biomeCondition, double defaultChance, double temperatureOffset, double humidityOffset, boolean isThundering, int lightningChance, Map<EntityCheck, List<Effect>> entityEffects) {
             this(biomeCondition, defaultChance, temperatureOffset, humidityOffset, isThundering, lightningChance, entityEffects, true);
         }
     }
 
     public record DecaySettings(int chunkTickChance, int entityDamageChance, Map<Block, Block> decayer,
-                                List<Pair<EntityCheck, Float>> entityDamage) {
+                                Map<EntityCheck, Float> entityDamage) {
         public static final Codec<DecaySettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 Codec.INT.fieldOf("chunkTickChance").forGetter(DecaySettings::chunkTickChance),
                 Codec.INT.fieldOf("entityDamageChance").forGetter(DecaySettings::entityDamageChance),
                 Codec.unboundedMap(ForgeRegistries.BLOCKS.getCodec(), ForgeRegistries.BLOCKS.getCodec()).fieldOf("decayer").forGetter(DecaySettings::decayer),
-                Codec.pair(EntityCheck.ENTITY_CHECK_CODEC, Codec.FLOAT).listOf().fieldOf("entityDamage").forGetter(DecaySettings::entityDamage)
+                Codec.unboundedMap(EntityCheck.ENTITY_CHECK_CODEC, Codec.FLOAT).fieldOf("entityDamage").forGetter(DecaySettings::entityDamage)
         ).apply(instance, DecaySettings::new));
-        public static final DecaySettings NONE = new DecaySettings(0, 0, Collections.emptyMap(), Collections.emptyList());
+        public static final DecaySettings NONE = new DecaySettings(0, 0, Collections.emptyMap(), Collections.emptyMap());
 
         private BlockState checkBlockState(BlockState blockState) {
             var block = decayer.getOrDefault(blockState.getBlock(), null);
@@ -299,7 +343,7 @@ public class Weather implements WeatherEventSettings {
                     return;
                 }
 
-                var damage = entityDamage.stream().filter(a -> a.getFirst().isValid(entity)).findFirst().map(a -> a.getSecond()).orElse(0f);
+                float damage = entityDamage.entrySet().stream().filter(a -> a.getKey().isValid(entity)).findFirst().map(Map.Entry::getValue).orElse(0f);
 
                 if (damage == 0)
                     entity.hurt((new DamageSource(Holder.direct(new DamageType("generic", 0.0F)))), damage);

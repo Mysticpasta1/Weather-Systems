@@ -1,0 +1,32 @@
+{
+  "type": "betterweather:basic",
+  "basic": {
+    "biomeCondition": [
+      "all"
+    ],
+    "defaultChance": 0.1,
+    "entityEffects": {},
+    "humidityOffset": 0.07,
+    "isThundering": true,
+    "lightningChance": 100000,
+    "showClouds": true,
+    "temperatureOffset": 0.0
+  },
+  "client": {
+    "type": "betterweather:cloudy",
+    "colorSettings": {
+      "cloudColorBlendStrength": 1.0,
+      "cloudTargetHexColor": "ff555f87",
+      "fogColorBlendStrength": 1.0,
+      "fogTargetHexColor": "ff555f87",
+      "foliageColorBlendStrength": 0.1,
+      "foliageTargetHexColor": "",
+      "grassColorBlendStrength": 0.1,
+      "grassTargetHexColor": "",
+      "skyColorBlendStrength": 1.0,
+      "skyTargetHexColor": "ff2a2d33"
+    },
+    "fogDensity": -0.09,
+    "skyOpacity": 0.0
+  }
+}

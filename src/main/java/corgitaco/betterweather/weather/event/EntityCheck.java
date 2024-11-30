@@ -22,6 +22,18 @@ public interface EntityCheck {
         }
     }, Object::toString);
 
+    static EntityCheck fromString(String s) {
+        if (s.startsWith("@")) {
+            return new CategoryCheck(MobCategory.byName(s.substring(1)));
+        } else {
+            var isTag = s.startsWith("#");
+            var location = isTag ? new ResourceLocation(s.substring(1)) : new ResourceLocation(s);
+
+            if (isTag) return new TagCheck(TagKey.create(Registries.ENTITY_TYPE, location));
+            else return new TypeCheck(ResourceKey.create(Registries.ENTITY_TYPE, location));
+        }
+    }
+
     boolean isValid(Entity entity);
 
     record TagCheck(TagKey<EntityType<?>> tag) implements EntityCheck {

@@ -1,5 +1,6 @@
 package corgitaco.betterweather.weather.event.client.settings;
 
+import com.google.gson.JsonObject;
 import com.mojang.datafixers.Products;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -9,6 +10,7 @@ import corgitaco.betterweather.api.weather.WeatherClientSettings;
 import corgitaco.betterweather.weather.event.client.RainClient;
 import net.minecraft.Util;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,10 +30,17 @@ public class RainClientSettings extends WeatherClientSettings {
     public final ResourceLocation rainTexture;
     public final ResourceLocation snowTexture;
 
-//    public static final Map<String, String> VALUE_COMMENTS = Util.make(new HashMap<>(WeatherClientSettings.VALUE_COMMENTS), (map) -> {
-//        map.put("rainTexture", "Texture path to the rain texture.");
-//        map.put("snowTexture", "Texture path to the rain texture.");
-//    });
+    public RainClientSettings(JsonObject json) {
+        this(
+                new ColorSettings(GsonHelper.getAsJsonObject(json, "colorSettings")),
+                GsonHelper.getAsFloat(json, "skyOpacity"),
+                GsonHelper.getAsFloat(json, "fogDensity"),
+                GsonHelper.getAsBoolean(json, "sunsetSunriseColor"),
+                LegacyWeatherRendering.valueOf(GsonHelper.getAsString(json, "renderingType")),
+                new ResourceLocation(GsonHelper.getAsString(json, "rainTexture")),
+                new ResourceLocation(GsonHelper.getAsString(json, "snowTexture"))
+        );
+    }
 
     public RainClientSettings(ColorSettings colorSettings, float skyOpacity, float fogDensity, boolean sunsetSunriseColor, ResourceLocation rainTexture, ResourceLocation snowTexture) {
         this(colorSettings, skyOpacity, fogDensity, sunsetSunriseColor, LegacyWeatherRendering.RAIN, rainTexture, snowTexture);
@@ -49,6 +58,6 @@ public class RainClientSettings extends WeatherClientSettings {
 
     @Override
     public WeatherClientSettingType<?> type() {
-        return WeatherClientSettingType.RAIN_CLIENT.get();
+        return WeatherClientSettingType.RAIN_CLIENT;
     }
 }
