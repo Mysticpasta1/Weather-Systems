@@ -27,7 +27,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.function.Predicate;
 
-import static corgitaco.betterweather.api.client.WeatherEventClient.LegacyWeatherRendering.*;
+import static corgitaco.betterweather.api.weather.WeatherClientSettings.LegacyWeatherRendering.*;
 
 public abstract class WeatherEventClient<T extends WeatherClientSettings> {
 
@@ -35,6 +35,7 @@ public abstract class WeatherEventClient<T extends WeatherClientSettings> {
     private final float skyOpacity;
     private final float fogDensity;
     private final boolean sunsetSunriseColor;
+    private final WeatherClientSettings.LegacyWeatherRendering renderingType;
 
     protected final BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
 
@@ -43,49 +44,19 @@ public abstract class WeatherEventClient<T extends WeatherClientSettings> {
         this.skyOpacity = clientSettings.skyOpacity();
         this.fogDensity = clientSettings.fogDensity();
         this.sunsetSunriseColor = clientSettings.sunsetSunriseColor();
+        this.renderingType = clientSettings.renderingType();
     }
 
     public void renderWeather(WeatherEventContext context, Minecraft mc, ClientLevel world, LightTexture lightTexture, int ticks, float partialTicks, double x, double y, double z, Predicate<ResourceKey<Biome>> biomePredicate) {
-        context.getCurrentWeatherEventKey()
-
-        (switch ((world.currentEvent.getName()) {
-            case "sunny", "partly_cloudy", "cloudy", "overcast", "heat_lightning" -> CLEAR;
-            case "drizzle", "rain", "downpour", "lightning" -> RAIN;
-            case "acid_drizzle", "acid_rain", "acid_downpour", "acid_lightning" -> ACIDIC;
-            case "dusting" ,"snow", "blizzard", "thunder_blizzard" -> SNOWY;
-            default -> throw new IllegalStateException("Unexpected value: " + BWWeatherEventContext.currentEvent.getName());
-        }).render(mc, world, lightTexture, ticks, partialTicks, x, y, z, biomePredicate);
+        render(renderingType, mc, world, lightTexture, ticks, partialTicks, x, y, z, biomePredicate);
     }
 
-    public void render(LegacyWeatherRendering renderingType, Minecraft mc, ClientLevel world, LightTexture lightTexture, int ticks, float partialTicks, double x, double y, double z, Predicate<ResourceKey<Biome>> biomePredicate) {
+    public void render(WeatherClientSettings.LegacyWeatherRendering renderingType, Minecraft mc, ClientLevel world, LightTexture lightTexture, int ticks, float partialTicks, double x, double y, double z, Predicate<ResourceKey<Biome>> biomePredicate) {
         switch (renderingType) {
             case CLEAR -> {}
             case RAIN -> renderVanillaWeather(mc, partialTicks, lightTexture, x, y, z, Textures.RAIN_LOCATION, Textures.SNOW_LOCATION, ticks, biomePredicate);
             case ACIDIC -> renderVanillaWeather(mc, partialTicks, lightTexture, x, y, z, Textures.ACID_RAIN_LOCATION, Textures.SNOW_LOCATION, ticks, biomePredicate);
             case SNOWY -> renderVanillaWeather(mc, partialTicks, lightTexture, x, y, z, Textures.SNOW_LOCATION, Textures.SNOW_LOCATION, ticks, biomePredicate);
-        }
-    }
-
-    public enum LegacyWeatherRendering {
-        CLEAR,
-        RAIN {
-            @Override
-            public void render(Minecraft mc, ClientLevel world, LightTexture lightTexture, int ticks, float partialTicks, double x, double y, double z, Predicate<ResourceKey<Biome>> biomePredicate) {
-                renderVanillaWeather(mc, partialTicks, lightTexture, x, y, z, Textures.RAIN_LOCATION, Textures.SNOW_LOCATION, ticks, biomePredicate);
-            }
-        },
-        ACIDIC {
-            @Override
-            public void render(Minecraft mc, ClientLevel world, LightTexture lightTexture, int ticks, float partialTicks, double x, double y, double z, Predicate<ResourceKey<Biome>> biomePredicate) {
-            }
-        },
-        SNOWY {
-            @Override
-            public void render(Minecraft mc, ClientLevel world, LightTexture lightTexture, int ticks, float partialTicks, double x, double y, double z, Predicate<ResourceKey<Biome>> biomePredicate) {
-            }
-        };
-
-        public void render(Minecraft mc, ClientLevel world, LightTexture lightTexture, int ticks, float partialTicks, double x, double y, double z, Predicate<ResourceKey<Biome>> biomePredicate) {
         }
     }
 

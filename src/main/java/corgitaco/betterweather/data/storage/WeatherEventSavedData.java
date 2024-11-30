@@ -54,7 +54,7 @@ public class WeatherEventSavedData extends SavedData {
 
     @Override
     public @NotNull CompoundTag save(CompoundTag compound) {
-        compound.putString("Event", event);
+        compound.putString("Event", event.toString());
         compound.putBoolean("Forced", isWeatherForced);
         return compound;
     }

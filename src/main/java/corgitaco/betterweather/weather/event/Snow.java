@@ -33,17 +33,17 @@ public class Snow extends Weather {
     .and(Codec.BOOL.fieldOf("snowLayering").forGetter(snow -> snow.snowLayers))
     .and(Codec.BOOL.fieldOf("waterFreezes").forGetter(snow -> snow.waterFreezes)).apply(instance, Snow::new));
 
-    public static final Map<String, String> VALUE_COMMENTS = Util.make(new HashMap<>(Weather.VALUE_COMMENTS), (map) -> {
-        map.putAll(SnowClientSettings.VALUE_COMMENTS);
-        map.put("blockLightThreshold", "The max sky brightness to allow snow to generate.");
-        map.put("snowBlock", "What block generates when chunks are ticking? If this block has the layers property & \"snowLayering\" is true, this block will layer.");
-        map.put("snowLayering", "Does the \"snowBlock\" layer when chunks are ticking? Only works if the\"snowBlock\" has a layers property!");
-        map.put("waterFreezes", "Does water freeze?");
-        map.put("entityEffects", "Entity/Category(left) effect(s)(right).");
-        map.put("chunkTickChance", "The chance of a chunk being ticked for this tick.");
-    });
-
-    public static final TomlCommentedConfigOps CONFIG_OPS = new TomlCommentedConfigOps(VALUE_COMMENTS, true);
+//    public static final Map<String, String> VALUE_COMMENTS = Util.make(new HashMap<>(Weather.VALUE_COMMENTS), (map) -> {
+//        map.putAll(SnowClientSettings.VALUE_COMMENTS);
+//        map.put("blockLightThreshold", "The max sky brightness to allow snow to generate.");
+//        map.put("snowBlock", "What block generates when chunks are ticking? If this block has the layers property & \"snowLayering\" is true, this block will layer.");
+//        map.put("snowLayering", "Does the \"snowBlock\" layer when chunks are ticking? Only works if the\"snowBlock\" has a layers property!");
+//        map.put("waterFreezes", "Does water freeze?");
+//        map.put("entityEffects", "Entity/Category(left) effect(s)(right).");
+//        map.put("chunkTickChance", "The chance of a chunk being ticked for this tick.");
+//    });
+//
+//    public static final TomlCommentedConfigOps CONFIG_OPS = new TomlCommentedConfigOps(VALUE_COMMENTS, true);
 
     private final int chunkTickChance;
     private final int blockLightThreshold;
@@ -120,6 +120,6 @@ public class Snow extends Weather {
 
     @Override
     public WeatherType<Snow> type() {
-        return Weather.WeatherType.SNOW.get();
+        return Weather.WeatherType.SNOW;
     }
 }

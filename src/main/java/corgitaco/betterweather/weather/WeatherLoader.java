@@ -30,6 +30,10 @@ public class WeatherLoader implements ResourceManagerReloadListener {
         return INSTANCE;
     }
 
+    public Map<ResourceLocation, Weather> getWeathers() {
+        return weatherMap;
+    }
+
     @Override
     public void onResourceManagerReload(ResourceManager manager) {
         weatherMap.clear();

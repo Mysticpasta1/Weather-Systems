@@ -11,7 +11,7 @@ public class SunnyClientSettings extends WeatherClientSettings {
     public static final Codec<SunnyClientSettings> CODEC = RecordCodecBuilder.create((builder) -> builder.group(ColorSettings.CODEC.fieldOf("colorSettings").forGetter(WeatherClientSettings::getColorSettings)).apply(builder, SunnyClientSettings::new));
 
     public SunnyClientSettings(ColorSettings colorSettings) {
-        super(colorSettings, 1.0F, -1.0F, true);
+        super(colorSettings, 1.0F, -1.0F, true, LegacyWeatherRendering.CLEAR);
     }
 
     @Override

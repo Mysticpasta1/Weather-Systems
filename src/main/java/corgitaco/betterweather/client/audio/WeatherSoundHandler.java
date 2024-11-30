@@ -56,7 +56,7 @@ public class WeatherSoundHandler implements AmbientSoundHandler {
         }
 
         Weather currentEvent = weatherEventContext.getCurrentEvent();
-        WeatherClientSettings clientSettings = currentEvent.getClientSettings();
+        WeatherClientSettings clientSettings = currentEvent != null ? currentEvent.getClientSettings() : null;
         if (clientSettings instanceof WeatherEventAudio) {
             ResourceLocation currentBiome = world.getBiome(player.blockPosition()).unwrapKey().get().location();
             if (currentEvent.isValidBiome(currentBiome)) {

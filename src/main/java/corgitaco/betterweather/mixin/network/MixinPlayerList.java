@@ -2,12 +2,15 @@ package corgitaco.betterweather.mixin.network;
 
 import corgitaco.betterweather.BetterWeather;
 import corgitaco.betterweather.api.BetterWeatherRegistry;
+import corgitaco.betterweather.api.weather.Weather;
 import corgitaco.betterweather.data.network.NetworkHandler;
 import corgitaco.betterweather.data.network.packet.weather.WeatherContextConstructingPacket;
 import corgitaco.betterweather.data.storage.WeatherEventSavedData;
 import corgitaco.betterweather.helpers.BetterWeatherWorldData;
 import corgitaco.betterweather.weather.BWWeatherEventContext;
+import corgitaco.betterweather.weather.WeatherLoader;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
@@ -23,7 +26,7 @@ public abstract class MixinPlayerList {
     private void sendContext(ServerPlayer playerIn, ServerLevel worldIn, CallbackInfo ci) {
         BWWeatherEventContext weatherEventContext = ((BetterWeatherWorldData) worldIn).getWeatherEventContext();
         if (weatherEventContext == null) {
-            weatherEventContext = ((BetterWeatherWorldData) worldIn).setWeatherEventContext(new BWWeatherEventContext(WeatherEventSavedData.get(worldIn).getEvent(), WeatherEventSavedData.get(worldIn).isWeatherForced(), worldIn.dimension().location(), worldIn.registryAccess().registryOrThrow(ForgeRegistries.BIOMES.getRegistryKey()), BetterWeatherRegistry.getWeather()));
+            weatherEventContext = ((BetterWeatherWorldData) worldIn).setWeatherEventContext(new BWWeatherEventContext(WeatherEventSavedData.get(worldIn).getEvent(), WeatherEventSavedData.get(worldIn).isWeatherForced(), worldIn.dimension(), worldIn.registryAccess().registryOrThrow(Registries.BIOME), WeatherLoader.getInstance().getWeathers()));
         }
         if (weatherEventContext != null) {
             NetworkHandler.sendToPlayer(playerIn, new WeatherContextConstructingPacket(weatherEventContext));

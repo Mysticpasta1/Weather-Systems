@@ -5,6 +5,7 @@ import corgitaco.betterweather.weather.BWWeatherEventContext;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -15,25 +16,25 @@ import java.util.function.Supplier;
 
 public class WeatherDataPacket {
 
-    private final String weatherEvent;
+    private final ResourceLocation weatherEvent;
     private final boolean weatherForced;
 
     public WeatherDataPacket(BWWeatherEventContext bwWeatherEventContext) {
         this(bwWeatherEventContext.getCurrentWeatherEventKey(), bwWeatherEventContext.isWeatherForced());
     }
 
-    public WeatherDataPacket(String weatherEvent, boolean weatherForced) {
+    public WeatherDataPacket(ResourceLocation weatherEvent, boolean weatherForced) {
         this.weatherEvent = weatherEvent;
         this.weatherForced = weatherForced;
     }
 
     public static void encode(WeatherDataPacket packet, FriendlyByteBuf buf) {
-        buf.writeUtf(packet.weatherEvent);
+        buf.writeResourceLocation(packet.weatherEvent);
         buf.writeBoolean(packet.weatherForced);
     }
 
     public static WeatherDataPacket decode(FriendlyByteBuf buf) {
-        return new WeatherDataPacket(buf.readUtf(), buf.readBoolean());
+        return new WeatherDataPacket(buf.readResourceLocation(), buf.readBoolean());
     }
 
     public static void handle(WeatherDataPacket message, Supplier<NetworkEvent.Context> ctx) {

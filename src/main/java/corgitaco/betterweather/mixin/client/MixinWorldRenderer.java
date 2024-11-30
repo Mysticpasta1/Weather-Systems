@@ -46,13 +46,17 @@ public abstract class MixinWorldRenderer {
 
     @Inject(at = @At("HEAD"), method = "tickRain", cancellable = true)
     private void stopRainParticles(Camera p_109694_, CallbackInfo ci) {
-        BWWeatherEventContext weatherEventContext = ((BetterWeatherWorldData) this.level).getWeatherEventContext();
-        if (minecraft.level != null && weatherEventContext != null) {
-            if(weatherEventContext.getCurrentClientEvent() instanceof CloudyClient) {
+        BWWeatherEventContext context = ((BetterWeatherWorldData) this.level).getWeatherEventContext();
+        var weather = context != null ? context.getCurrentEvent() : null;
+
+        if (minecraft.level != null && weather != null) {
+            var clientSettings = weather.getClient();
+
+            if(clientSettings instanceof CloudyClient) {
                 ci.cancel();
-            } else if (weatherEventContext.getCurrentClientEvent() instanceof RainClient rainClient) {
+            } else if (clientSettings instanceof RainClient rainClient) {
                 ci.cancel();
-                rainClient.weatherParticlesAndSound(p_109694_, this.minecraft, this.ticks, weatherEventContext.getCurrentEvent()::isValidBiome);
+                rainClient.weatherParticlesAndSound(p_109694_, this.minecraft, this.ticks, weather::isValidBiome);
             }
         }
     }

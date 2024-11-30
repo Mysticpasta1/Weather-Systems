@@ -12,9 +12,12 @@ public class CloudyClientSettings extends WeatherClientSettings {
     public static final Codec<CloudyClientSettings> CODEC = RecordCodecBuilder.create((builder) -> commonFields(builder)
             .apply(builder, CloudyClientSettings::new));
 
-
     public CloudyClientSettings(ColorSettings colorSettings, float skyOpacity, float fogDensity, boolean sunsetSunriseColor) {
-        super(colorSettings, skyOpacity, fogDensity, sunsetSunriseColor);
+        this(colorSettings, skyOpacity, fogDensity, sunsetSunriseColor, LegacyWeatherRendering.CLEAR);
+    }
+
+    public CloudyClientSettings(ColorSettings colorSettings, float skyOpacity, float fogDensity, boolean sunsetSunriseColor, LegacyWeatherRendering weatherRendering) {
+        super(colorSettings, skyOpacity, fogDensity, sunsetSunriseColor, weatherRendering);
     }
 
     @Override

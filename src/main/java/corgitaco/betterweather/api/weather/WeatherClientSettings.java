@@ -14,24 +14,27 @@ import net.minecraft.Util;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.Mth;
+import net.minecraft.util.StringRepresentable;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public abstract class WeatherClientSettings {
-    public static final Codec<WeatherClientSettings> CODEC = ExtraCodecs.lazyInitializedCodec(() -> WeatherClientSettingType.CODEC.dispatch(WeatherClientSettings::type, WeatherClientSettingType::codec));
-
-    public static <T extends WeatherClientSettings> Products.P4<RecordCodecBuilder.Mu<T>, ColorSettings, Float, Float, Boolean> commonFields(RecordCodecBuilder.Instance<T> builder) {
+    public static final Codec<WeatherClientSettings> CODEC = WeatherClientSettingType.CODEC.dispatch(WeatherClientSettings::type, WeatherClientSettingType::codec);
+    public static <T extends WeatherClientSettings> Products.P5<RecordCodecBuilder.Mu<T>, ColorSettings, Float, Float, Boolean, LegacyWeatherRendering> commonFields(RecordCodecBuilder.Instance<T> builder) {
         return builder.group(ColorSettings.CODEC.fieldOf("colorSettings").forGetter(WeatherClientSettings::getColorSettings),
                 Codec.FLOAT.fieldOf("skyOpacity").forGetter(WeatherClientSettings::skyOpacity),
                 Codec.FLOAT.fieldOf("fogDensity").forGetter(WeatherClientSettings::fogDensity),
-                Codec.BOOL.fieldOf("sunsetSunriseColor").forGetter(WeatherClientSettings::sunsetSunriseColor));
+                Codec.BOOL.fieldOf("sunsetSunriseColor").forGetter(WeatherClientSettings::sunsetSunriseColor),
+                StringRepresentable.fromEnum(LegacyWeatherRendering::values).fieldOf("renderingType").forGetter(WeatherClientSettings::renderingType));
     }
+
 
     private final ColorSettings colorSettings;
     private final float skyOpacity;
     private final float fogDensity;
     private final boolean sunsetSunriseColor;
+    private final LegacyWeatherRendering renderingType;
 
     public static final Map<String, String> VALUE_COMMENTS = Util.make(new HashMap<>(ColorSettings.VALUE_COMMENTS), (map) -> {
         map.put("skyOpacity", "What is the opacity of the sky? 0.0 means hidden, 1.0 is fully visible.\n#Range 0.0-1.0");
@@ -39,11 +42,12 @@ public abstract class WeatherClientSettings {
         map.put("sunsetSunriseColor", "Do sunsets/sunrises modify fog/sky color?");
     });
 
-    public WeatherClientSettings(ColorSettings colorSettings, float skyOpacity, float fogDensity, boolean sunsetSunriseColor) {
+    public WeatherClientSettings(ColorSettings colorSettings, float skyOpacity, float fogDensity, boolean sunsetSunriseColor, LegacyWeatherRendering renderingType) {
         this.colorSettings = colorSettings;
         this.skyOpacity = skyOpacity;
         this.fogDensity = fogDensity;
         this.sunsetSunriseColor = sunsetSunriseColor;
+        this.renderingType = renderingType;
     }
 
     public abstract WeatherEventClient<?> createClientSettings();
@@ -73,6 +77,26 @@ public abstract class WeatherClientSettings {
     }
 
     abstract public WeatherClientSettingType<?> type();
+
+    public LegacyWeatherRendering renderingType() {
+        return renderingType;
+    }
+
+    public enum LegacyWeatherRendering implements StringRepresentable {
+        CLEAR, RAIN, ACIDIC, SNOWY;
+
+        private final String name;
+
+        LegacyWeatherRendering() {
+            this.name = name().toLowerCase();
+        }
+
+
+        @Override
+        public String getSerializedName() {
+            return name;
+        }
+    }
 
     public record WeatherClientSettingType<T extends WeatherClientSettings>(Codec<T> codec) {
         public static final Registrar<WeatherClientSettingType<?>> REGISTRY = RegistrarManager.get(BetterWeather.MOD_ID).<WeatherClientSettingType<?>>builder(new ResourceLocation(BetterWeather.MOD_ID, "abstract_pocket_type")).build();

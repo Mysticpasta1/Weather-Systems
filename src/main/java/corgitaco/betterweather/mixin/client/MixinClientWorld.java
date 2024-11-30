@@ -1,6 +1,7 @@
 package corgitaco.betterweather.mixin.client;
 
 import corgitaco.betterweather.api.Climate;
+import corgitaco.betterweather.api.weather.Weather;
 import corgitaco.betterweather.helpers.BetterWeatherWorldData;
 import corgitaco.betterweather.weather.BWWeatherEventContext;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -54,6 +55,7 @@ public class MixinClientWorld implements BetterWeatherWorldData, Climate {
     private float sunBrightness(ClientLevel instance, float v) {
         float rainStrength = ((ClientLevel) (Object) this).getRainLevel(v);
         BWWeatherEventContext weatherContext = this.weatherContext;
-        return weatherContext != null ? rainStrength * weatherContext.getCurrentEvent().getClientSettings().dayLightDarkness() : rainStrength;
+        Weather weather = weatherContext != null ? weatherContext.getCurrentEvent() : null;
+        return weather != null ? rainStrength * weather.getClientSettings().dayLightDarkness() : rainStrength;
     }
 }

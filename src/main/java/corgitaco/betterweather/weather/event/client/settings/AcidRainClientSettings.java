@@ -19,14 +19,19 @@ public class AcidRainClientSettings extends RainClientSettings {
             .and(Codec.BOOL.fieldOf("smokeParticles").forGetter(blizzardClientSettings -> blizzardClientSettings.addSmokeParticles))
             .apply(builder, AcidRainClientSettings::new));
 
-    public static final Map<String, String> VALUE_COMMENTS = Util.make(new HashMap<>(RainClientSettings.VALUE_COMMENTS), (map) -> {
-        map.put("smokeParticles", "Do smoke particles appear on the ground?");
-    });
+//    public static final Map<String, String> VALUE_COMMENTS = Util.make(new HashMap<>(RainClientSettings.VALUE_COMMENTS), (map) -> {
+//        map.put("smokeParticles", "Do smoke particles appear on the ground?");
+//    });
 
     public boolean addSmokeParticles = true;
 
     public AcidRainClientSettings(ColorSettings colorSettings, float skyOpacity, float fogDensity, boolean sunsetSunriseColor, ResourceLocation rainTexture, ResourceLocation snowTexture, boolean addSmokeParticles) {
-        super(colorSettings, skyOpacity, fogDensity, sunsetSunriseColor, rainTexture, snowTexture);
+        this(colorSettings, skyOpacity, skyOpacity, sunsetSunriseColor, LegacyWeatherRendering.ACIDIC, rainTexture, snowTexture, addSmokeParticles);
+
+    }
+
+    public AcidRainClientSettings(ColorSettings colorSettings, float skyOpacity, float fogDensity, boolean sunsetSunriseColor, LegacyWeatherRendering weatherRendering, ResourceLocation rainTexture, ResourceLocation snowTexture, boolean addSmokeParticles) {
+        super(colorSettings, skyOpacity, fogDensity, sunsetSunriseColor, weatherRendering, rainTexture, snowTexture);
         this.addSmokeParticles = addSmokeParticles;
     }
 

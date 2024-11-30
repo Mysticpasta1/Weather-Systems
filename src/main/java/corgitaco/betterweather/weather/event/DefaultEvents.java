@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
 import corgitaco.betterweather.api.client.ColorSettings;
 import corgitaco.betterweather.api.weather.Weather;
+import corgitaco.betterweather.api.weather.WeatherClientSettings;
 import corgitaco.betterweather.core.SoundRegistry;
 import corgitaco.betterweather.util.Textures;
 import corgitaco.betterweather.util.client.ColorUtil;
@@ -57,9 +58,9 @@ public class DefaultEvents {
     });
 
     public static final Weather PARTLY_CLOUDY = new Weather(new CloudyClientSettings(RAIN_COLORS, 1.0F, -1.0F, true), new Weather.BasicSettings(List.of(BiomeCheck.AlwaysTrueCheck.INSTANCE), 0.7D, !MODIFY_TEMPERATURE ? 0.0 : -0.05, 0.07, false, 0), Weather.DecaySettings.NONE);
-    public static final Weather ACID_DRIZZLE = new Weather(new AcidRainClientSettings(RAIN_COLORS, 0.0F, -1.0F, true, Textures.ACID_RAIN_LOCATION, Textures.SNOW_LOCATION, true), new Weather.BasicSettings(DEFAULT_BIOME_CONDITION, 0.25D, !MODIFY_TEMPERATURE ? 0.0 : -0.1, 0.1, false, 0), new Weather.DecaySettings(38, 25, DEFAULT_DECAYER, DEFAULT_ENTITY_DAMAGE));
+    public static final Weather ACID_DRIZZLE = new Weather(new AcidRainClientSettings(RAIN_COLORS, 0.0F, -1.0F, true, WeatherClientSettings.LegacyWeatherRendering.SNOWY, Textures.ACID_RAIN_LOCATION, Textures.SNOW_LOCATION, true), new Weather.BasicSettings(DEFAULT_BIOME_CONDITION, 0.25D, !MODIFY_TEMPERATURE ? 0.0 : -0.1, 0.1, false, 0), new Weather.DecaySettings(38, 25, DEFAULT_DECAYER, DEFAULT_ENTITY_DAMAGE));
     public static final Snow DUSTING = new Snow(
-            new SnowClientSettings(new ColorSettings(Integer.MAX_VALUE, 0.0, Integer.MAX_VALUE, 0.0), 0.0F, 0.2F, false, Textures.SNOW_LOCATION, Holder.direct(SoundEvents.EMPTY), 0.0F, 0.0F),
+            new SnowClientSettings(new ColorSettings(Integer.MAX_VALUE, 0.0, Integer.MAX_VALUE, 0.0), 0.0F, 0.2F, false, Textures.SNOW_LOCATION, SnowClientSettings.SoundSetting.EMPTY),
             new Weather.BasicSettings(DEFAULT_BIOME_CONDITION, 0.1D, !MODIFY_TEMPERATURE ? 0.0 : -0.5, 0.1, false, 0, Util.<List<Pair<EntityCheck, List<MobEffectInstance>>>>make(new ArrayList<>(), ((stringListHashMap) -> stringListHashMap.add(new Pair<>(new EntityCheck.TypeCheck(EntityType.PLAYER.builtInRegistryHolder().key()), ImmutableList.of(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN))))))),
             Weather.DecaySettings.NONE, 2, 10, Blocks.SNOW, false, true);
     public static final Weather DRIZZLE = new Weather(new RainClientSettings(RAIN_COLORS, 0.0F, -1.0F, true, Textures.RAIN_LOCATION, Textures.SNOW_LOCATION), new Weather.BasicSettings(DEFAULT_BIOME_CONDITION, 0.7D, !MODIFY_TEMPERATURE ? 0.0 : -0.1, 0.1, false, 0), Weather.DecaySettings.NONE);
@@ -67,15 +68,15 @@ public class DefaultEvents {
     public static final Weather CLOUDY = new Weather(new CloudyClientSettings(RAIN_COLORS, 0.5F, -1.0F, true), new Weather.BasicSettings(List.of(BiomeCheck.AlwaysTrueCheck.INSTANCE), 0.7D, !MODIFY_TEMPERATURE ? 0.0 : -0.05, 0.07, false, 0), Weather.DecaySettings.NONE);
     public static final Weather ACID_RAIN = new Weather(new AcidRainClientSettings(RAIN_COLORS, 0.0F, -1.0F, true, Textures.ACID_RAIN_LOCATION, Textures.SNOW_LOCATION, true), new Weather.BasicSettings(DEFAULT_BIOME_CONDITION, 0.25D, !MODIFY_TEMPERATURE ? 0.0 : -0.1, 0.1, false, 0), new Weather.DecaySettings(150, 100, DEFAULT_DECAYER, DEFAULT_ENTITY_DAMAGE));
     public static final Snow SNOW = new Snow(
-            new SnowClientSettings(new ColorSettings(Integer.MAX_VALUE, 0.0, Integer.MAX_VALUE, 0.0), 0.0F, 0.2F, false, Textures.SNOW_LOCATION, Holder.direct(SoundEvents.EMPTY), 0.0F, 0.0F),
+            new SnowClientSettings(new ColorSettings(Integer.MAX_VALUE, 0.0, Integer.MAX_VALUE, 0.0), 0.0F, 0.2F, false, Textures.SNOW_LOCATION, SnowClientSettings.SoundSetting.EMPTY),
             new Weather.BasicSettings(DEFAULT_BIOME_CONDITION, 0.1D, !MODIFY_TEMPERATURE ? 0.0 : -0.5, 0.1, false, 0, Util.<List<Pair<EntityCheck, List<MobEffectInstance>>>>make(new ArrayList<>(), ((stringListHashMap) -> stringListHashMap.add(new Pair<>(new EntityCheck.TypeCheck(EntityType.PLAYER.builtInRegistryHolder().key()), ImmutableList.of(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN))))))),
             Weather.DecaySettings.NONE, 2, 10, Blocks.SNOW, true, true);
-    public static final Weather RAIN = new Weather(new RainClientSettings(RAIN_COLORS, 0.0F, -1.0F, true, Textures.RAIN_LOCATION, Textures.SNOW_LOCATION), new Weather.BasicSettings(DEFAULT_BIOME_CONDITION, 0.7D, !MODIFY_TEMPERATURE ? 0.0 : -0.1, 0.1, false, 0), Weather.DecaySettings.NONE);
+    public static final Weather RAIN = new Weather(new RainClientSettings(RAIN_COLORS, 0.0F, -1.0F, true, WeatherClientSettings.LegacyWeatherRendering.RAIN, Textures.RAIN_LOCATION, Textures.SNOW_LOCATION), new Weather.BasicSettings(DEFAULT_BIOME_CONDITION, 0.7D, !MODIFY_TEMPERATURE ? 0.0 : -0.1, 0.1, false, 0), Weather.DecaySettings.NONE);
 
     public static final Weather OVERCAST = new Weather(new CloudyClientSettings(RAIN_COLORS, 1.0F, -1.0F, true), new Weather.BasicSettings(List.of(BiomeCheck.AlwaysTrueCheck.INSTANCE), 0.7D, !MODIFY_TEMPERATURE ? 0.0 : -0.05, 0.07, false, 0), Weather.DecaySettings.NONE);
-    public static final Weather ACID_DOWNPOUR = new Weather(new AcidRainClientSettings(THUNDER_COLORS, 0.0F, -1.0F, true, Textures.ACID_RAIN_LOCATION, Textures.SNOW_LOCATION, true), new Weather.BasicSettings(DEFAULT_BIOME_CONDITION, 0.125D, !MODIFY_TEMPERATURE ? 0.0 : -0.1, 0.1, false, 0), new Weather.DecaySettings(150, 100, DEFAULT_DECAYER, DEFAULT_ENTITY_DAMAGE));
+    public static final Weather ACID_DOWNPOUR = new Weather(new AcidRainClientSettings(THUNDER_COLORS, 0.0F, -1.0F, true, WeatherClientSettings.LegacyWeatherRendering.ACIDIC, Textures.ACID_RAIN_LOCATION, Textures.SNOW_LOCATION, true), new Weather.BasicSettings(DEFAULT_BIOME_CONDITION, 0.125D, !MODIFY_TEMPERATURE ? 0.0 : -0.1, 0.1, false, 0), new Weather.DecaySettings(150, 100, DEFAULT_DECAYER, DEFAULT_ENTITY_DAMAGE));
     public static final Snow BLIZZARD = new Snow(
-            new SnowClientSettings(new ColorSettings(Integer.MAX_VALUE, 0.0, Integer.MAX_VALUE, 0.0), 0.0F, 0.2F, false, Textures.SNOW_LOCATION, Holder.direct(SoundRegistry.BLIZZARD_LOOP2), 0.6F, 0.6F),
+            new SnowClientSettings(new ColorSettings(Integer.MAX_VALUE, 0.0, Integer.MAX_VALUE, 0.0), 0.0F, 0.2F, false, WeatherClientSettings.LegacyWeatherRendering.SNOWY, Textures.SNOW_LOCATION, SnowClientSettings.SoundSetting.BLIZZARD),
             new Weather.BasicSettings(DEFAULT_BIOME_CONDITION, 0.1D, !MODIFY_TEMPERATURE ? 0.0 : -0.5, 0.1, false, 0, Util.<List<Pair<EntityCheck, List<MobEffectInstance>>>>make(new ArrayList<>(), ((stringListHashMap) -> stringListHashMap.add(new Pair<>(new EntityCheck.TypeCheck(EntityType.PLAYER.builtInRegistryHolder().key()), ImmutableList.of(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN))))))),
             Weather.DecaySettings.NONE, 2, 10, Blocks.SNOW, true, true);
     public static final Weather DOWNPOUR = new Weather(new RainClientSettings(THUNDER_COLORS, 0.0F, -1.0F, true, Textures.RAIN_LOCATION, Textures.SNOW_LOCATION), new Weather.BasicSettings(DEFAULT_BIOME_CONDITION, 0.3D, !MODIFY_TEMPERATURE ? 0.0 : -0.5, 0.1, false, 100000), Weather.DecaySettings.NONE);
@@ -83,8 +84,12 @@ public class DefaultEvents {
     public static final Weather HEAT_LIGHTNING = new Weather(new CloudyClientSettings(THUNDER_COLORS, 0.0F, -0.09F, true), new Weather.BasicSettings(List.of(BiomeCheck.AlwaysTrueCheck.INSTANCE), 0.1D, !MODIFY_TEMPERATURE ? 0.0 :-0.05, 0.07, true, 100000), Weather.DecaySettings.NONE);
     public static final Weather ACID_LIGHTNING = new Weather(new AcidRainClientSettings(THUNDER_COLORS, 0.0F, -1.0F, true, Textures.ACID_RAIN_LOCATION, Textures.SNOW_LOCATION, true), new Weather.BasicSettings(DEFAULT_BIOME_CONDITION, 0.125D, !MODIFY_TEMPERATURE ? 0.0 : -0.1, 0.1, true, 100000), new Weather.DecaySettings(150, 100, DEFAULT_DECAYER, DEFAULT_ENTITY_DAMAGE));
     public static final Snow THUNDER_BLIZZARD = new Snow(
-            new SnowClientSettings(new ColorSettings(Integer.MAX_VALUE, 0.0, Integer.MAX_VALUE, 0.0), 0.0F, 0.2F, false, Textures.SNOW_LOCATION, Holder.direct(SoundRegistry.BLIZZARD_LOOP2), 0.6F, 0.6F),
+            new SnowClientSettings(new ColorSettings(Integer.MAX_VALUE, 0.0, Integer.MAX_VALUE, 0.0), 0.0F, 0.2F, false, Textures.SNOW_LOCATION, SnowClientSettings.SoundSetting.BLIZZARD),
             new Weather.BasicSettings(DEFAULT_BIOME_CONDITION, 0.05D, !MODIFY_TEMPERATURE ? 0.0 : -0.5, 0.1, true, 100000, Util.<List<Pair<EntityCheck, List<MobEffectInstance>>>>make(new ArrayList<>(), ((stringListHashMap) -> stringListHashMap.add(new Pair<>(new EntityCheck.TypeCheck(EntityType.PLAYER.builtInRegistryHolder().key()), ImmutableList.of(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN))))))),
             Weather.DecaySettings.NONE, 2, 10, Blocks.SNOW, true, true);
     public static final Weather LIGHTNING = new Weather(new RainClientSettings(THUNDER_COLORS, 0.0F, -1.0F, true, Textures.RAIN_LOCATION, Textures.SNOW_LOCATION), new Weather.BasicSettings(DEFAULT_BIOME_CONDITION, 0.3D, !MODIFY_TEMPERATURE ? 0.0 : -0.5, 0.1, true, 100000), Weather.DecaySettings.NONE);
+
+    public static void init() {
+
+    }
 }

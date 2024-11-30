@@ -51,7 +51,7 @@ import java.util.function.Predicate;
 
 @Mod.EventBusSubscriber
 public class Weather implements WeatherEventSettings {
-    public static final Codec<Weather> CODEC = ExtraCodecs.lazyInitializedCodec(() -> WeatherType.CODEC.dispatch(Weather::type, WeatherType::codec));
+    public static final Codec<Weather> CODEC = WeatherType.CODEC.dispatch(Weather::type, WeatherType::codec);
 
 
     public static <T extends Weather> Products.P3<RecordCodecBuilder.Mu<T>, WeatherClientSettings, BasicSettings, DecaySettings> commonFields(RecordCodecBuilder.Instance<T> builder) {
@@ -230,8 +230,8 @@ public class Weather implements WeatherEventSettings {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void setClient(WeatherEventClient<?> client) {
-        this.client = client;
+    public void initClient() {
+        this.client = getClientSettings().createClientSettings();
     }
 
     public WeatherType<? extends Weather> type() {

@@ -1,5 +1,6 @@
 package corgitaco.betterweather.helpers;
 
+import corgitaco.betterweather.api.weather.Weather;
 import corgitaco.betterweather.weather.BWWeatherEventContext;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
@@ -31,9 +32,11 @@ public class ServerBiomeUpdate {
             Biome biome = entry.getValue();
             ResourceKey<Biome> biomeKey = entry.getKey();
 
-            if (weatherContext != null && validBiomes.stream().anyMatch(a -> a.is(biomeKey)) && weatherContext.getCurrentEvent().isValidBiome(biomeKey)) {
-                float weatherHumidityModifier = (float) this.weatherContext.getCurrentEvent().getHumidityModifierAtPosition(null);
-                float weatherTemperatureModifier = (float) this.weatherContext.getCurrentWeatherEventSettings().getTemperatureModifierAtPosition(null);
+            Weather weather = weatherContext != null ? weatherContext.getCurrentEvent() : null;
+
+            if (weather != null && validBiomes.stream().anyMatch(a -> a.is(biomeKey)) && weather.isValidBiome(biomeKey)) {
+                float weatherHumidityModifier = (float) weather.getHumidityModifierAtPosition(null);
+                float weatherTemperatureModifier = (float) weather.getTemperatureModifierAtPosition(null);
                 ((BiomeModifier) (Object) biome).setWeatherTempModifier(weatherTemperatureModifier);
                 ((BiomeModifier) (Object) biome).setWeatherHumidityModifier(weatherHumidityModifier);
             }

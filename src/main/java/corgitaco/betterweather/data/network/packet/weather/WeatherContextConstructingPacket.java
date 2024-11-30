@@ -40,8 +40,8 @@ public class WeatherContextConstructingPacket {
                     BWWeatherEventContext weatherEventContext = ((BetterWeatherWorldData) world).getWeatherEventContext();
                     if (weatherEventContext == null) {
                         weatherEventContext = ((BetterWeatherWorldData) world).setWeatherEventContext(new BWWeatherEventContext(message.bwWeatherEventContext.getCurrentWeatherEventKey(),
-                                message.bwWeatherEventContext.isWeatherForced(), world.dimension().location(), world.registryAccess().registryOrThrow(ForgeRegistries.BIOMES.getRegistryKey()), message.bwWeatherEventContext.getWeatherEvents()));
-                        weatherEventContext.setCurrentEvent(message.bwWeatherEventContext.getCurrentEvent());
+                                message.bwWeatherEventContext.isWeatherForced(), world.dimension(), world.registryAccess().registryOrThrow(ForgeRegistries.BIOMES.getRegistryKey()), message.bwWeatherEventContext.getWeatherEvents()));
+                        weatherEventContext.setCurrentEvent(message.bwWeatherEventContext.getCurrentWeatherEventKey());
                         new ClientBiomeUpdate(world.registryAccess(), message.bwWeatherEventContext).updateBiomeData();
                     } else {
                         throw new UnsupportedOperationException("There is already a weather event context constructed for this world!");
